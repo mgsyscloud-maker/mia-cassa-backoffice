@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mia Cassa Backoffice</title>
+<script src="config.js"></script>
+<style>
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --ink: #15181d; --muted: #5d6673; --line: #dfe3e8;
+  --brand: #1f6f5c; --brand-ink: #ffffff; --brand-soft: #e3f1ec;
+  --danger: #b3261e; --danger-soft: #fbe9e7; --ok: #1e7d32; --warn: #a15c00; --warn-soft: #fff3e0;
+  --radius: 10px; --shadow: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111418; --card: #1a1e24; --ink: #e9ecf1; --muted: #9aa4b1; --line: #2c333c;
+    --brand: #4fb393; --brand-ink: #0c1512; --brand-soft: #1b2e28;
+    --danger: #ff8a80; --danger-soft: #3a1d1b; --ok: #81c784; --warn: #ffb74d; --warn-soft: #3a2a14;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--brand); }
+button, input, select, textarea { font: inherit; color: inherit; }
+input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--card); }
+textarea { min-height: 70px; resize: vertical; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+button { cursor: pointer; border: 1px solid var(--line); background: var(--card); padding: 8px 14px; border-radius: 8px; }
+button.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 600; }
+button.danger { color: var(--danger); }
+button.link { border: 0; background: none; color: var(--brand); padding: 4px 0; }
+button:disabled { opacity: .5; cursor: default; }
+header.top { display: flex; align-items: center; gap: 12px; padding: 10px 18px; background: var(--card);
+  border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+header.top .logo { font-weight: 800; letter-spacing: .2px; }
+header.top .spacer { flex: 1; }
+header.top .who { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
+main { max-width: 1100px; margin: 0 auto; padding: 18px 16px 60px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px; margin-bottom: 14px; }
+.card h2 { margin: 0 0 10px; font-size: 17px; }
+.card h3 { margin: 16px 0 8px; font-size: 15px; }
+.narrow { max-width: 420px; margin: 40px auto; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+@media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { display: flex; gap: 10px; align-items: center; padding: 11px 4px; border-bottom: 1px solid var(--line); }
+.list li:last-child { border-bottom: 0; }
+.list li.click { cursor: pointer; }
+.list li.click:hover { background: var(--brand-soft); }
+.grow { flex: 1; min-width: 0; }
+.muted { color: var(--muted); font-size: 13px; }
+.pill { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 600;
+  background: var(--brand-soft); color: var(--brand); white-space: nowrap; }
+.pill.off { background: var(--danger-soft); color: var(--danger); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.grey { background: var(--bg); color: var(--muted); }
+.code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 16px; font-weight: 700; letter-spacing: 1px;
+  background: var(--bg); padding: 4px 8px; border-radius: 6px; user-select: all; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 6px 0 14px; overflow-x: auto; }
+.tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; padding: 9px 12px;
+  color: var(--muted); white-space: nowrap; }
+.tabs button.on { color: var(--ink); border-bottom-color: var(--brand); font-weight: 600; }
+.crumbs { margin-bottom: 10px; font-size: 14px; }
+.crumbs button { padding: 0; }
+.msg { padding: 10px 12px; border-radius: 8px; margin: 10px 0; }
+.msg.err { background: var(--danger-soft); color: var(--danger); }
+.msg.ok { background: var(--brand-soft); color: var(--brand); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+.kpi .v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.kpi .l { font-size: 12px; color: var(--muted); }
+.bars { display: flex; flex-direction: column; gap: 5px; }
+.bar { display: grid; grid-template-columns: 110px 1fr 90px; gap: 8px; align-items: center; font-size: 13px; }
+.bar .track { background: var(--bg); border-radius: 4px; height: 14px; overflow: hidden; }
+.bar .fill { background: var(--brand); height: 100%; }
+.bar .n { text-align: right; font-variant-numeric: tabular-nums; }
+table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.t th, table.t td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); }
+table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.switch { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.switch input { width: auto; }
+dialog { border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink);
+  padding: 18px; width: min(460px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+dialog h2 { margin: 0 0 8px; font-size: 17px; }
+dialog .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.hidden { display: none !important; }
+.loading { color: var(--muted); padding: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="logo">Mia Cassa · Backoffice</span>
+  <span class="spacer"></span>
+  <span class="who" id="who"></span>
+  <button id="logout" class="hidden">Esci</button>
+</header>
+<main id="app"><div class="loading">Caricamento…</div></main>
+<dialog id="dlg"></dialog>
+
+<script>
+(function () {
+  'use strict';
+  var CFG = window.MIA_CASSA_CLOUD || {};
+  var URL_ = (CFG.url || '').replace(/\/+$/, '');
+  var KEY = CFG.key || '';
+  var app = document.getElementById('app');
+  var S = { session: null, user: null, memberships: [], view: null };
+
+  // ---------------------------------------------------------------- utilità
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function eur(c) { return ((c || 0) / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }); }
+  function dt(s) { if (!s) return '—'; var d = new Date(s); return d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }); }
+  function day(s) { if (!s) return '—'; var p = String(s).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } return null; }
+  function h(html) { app.innerHTML = html; }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
+  function msg(text, ok) { return '<div class="msg ' + (ok ? 'ok' : 'err') + '">' + esc(text) + '</div>'; }
+
+  // ---------------------------------------------------------------- cloud
+  function api(method, path, body, opts) {
+    opts = opts || {};
+    var headers = { 'apikey': KEY, 'Content-Type': 'application/json' };
+    if (opts.auth !== false && S.session) headers['Authorization'] = 'Bearer ' + S.session.access_token;
+    if (opts.prefer) headers['Prefer'] = opts.prefer;
+    return fetch(URL_ + path, { method: method, headers: headers, body: body == null ? undefined : JSON.stringify(body) })
+      .then(function (r) {
+        return r.text().then(function (t) {
+          var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) { j = t; }
+          if (r.status === 401 && opts.auth !== false && !opts.retried && S.session) {
+            return refresh().then(function () { opts.retried = true; return api(method, path, body, opts); });
+          }
+          if (!r.ok) {
+            var m = j && (j.message || j.msg || j.error_description || j.error) || ('Errore ' + r.status);
+            throw new Error(translate(m));
+          }
+          return j;
+        });
+      });
+  }
+  function translate(m) {
+    var map = {
+      'Invalid login credentials': 'Email o password sbagliate',
+      'Email not confirmed': 'Conferma prima l\'email: ti abbiamo mandato un messaggio',
+      'User already registered': 'Questa email è già registrata: accedi',
+      'Password should be at least 6 characters.': 'La password deve avere almeno 6 caratteri'
+    };
+    return map[m] || m;
+  }
+  // dove tornano i link delle email (conferma e nuova password): questa stessa pagina
+  var BACK = encodeURIComponent(location.origin + location.pathname);
+  function rpc(fn, args) { return api('POST', '/rest/v1/rpc/' + fn, args || {}); }
+  function get(path) { return api('GET', '/rest/v1/' + path); }
+  function ins(table, row) { return api('POST', '/rest/v1/' + table, row, { prefer: 'return=representation' }).then(function (r) { return r && r[0]; }); }
+  function upd(table, filter, row) { return api('PATCH', '/rest/v1/' + table + '?' + filter, row, { prefer: 'return=representation' }); }
+  function del(table, filter) { return api('DELETE', '/rest/v1/' + table + '?' + filter); }
+  // tutte le righe (il cloud ne dà al massimo 1000 per volta)
+  function getAll(path) {
+    var out = [];
+    function page(off) {
+      return get(path + (path.indexOf('?') < 0 ? '?' : '&') + 'limit=1000&offset=' + off).then(function (rows) {
+        out = out.concat(rows || []);
+        return rows && rows.length === 1000 ? page(off + 1000) : out;
+      });
+    }
+    return page(0);
+  }
+  function uuid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+    });
+  }
+  function upsert(table, rows) { return api('POST', '/rest/v1/' + table, rows, { prefer: 'resolution=merge-duplicates,return=minimal' }); }
+
+  function setSession(s) {
+    if (s && s.access_token) {
+      s.expires_at = s.expires_at || Math.floor(Date.now() / 1000) + (s.expires_in || 3600);
+      S.session = s; S.user = s.user || S.user;
+      store('mc_session', JSON.stringify({ access_token: s.access_token, refresh_token: s.refresh_token, expires_at: s.expires_at, user: S.user }));
+    } else {
+      S.session = null; S.user = null; store('mc_session', null);
+    }
+  }
+  function refresh() {
+    if (!S.session) return Promise.reject(new Error('Accesso scaduto'));
+    return api('POST', '/auth/v1/token?grant_type=refresh_token', { refresh_token: S.session.refresh_token }, { auth: false })
+      .then(setSession, function (e) { setSession(null); route(); throw e; });
+  }
+  setInterval(function () {
+    if (S.session && S.session.expires_at - Date.now() / 1000 < 300) refresh().catch(function () {});
+  }, 60000);
+
+  // ---------------------------------------------------------------- dialog
+  var dlg = document.getElementById('dlg');
+  function dialog(title, bodyHtml, okLabel, onOk) {
+    dlg.innerHTML = '<h2>' + esc(title) + '</h2><div id="dlgBody">' + bodyHtml + '</div><div id="dlgMsg"></div>' +
+      '<div class="actions"><button id="dlgCancel">Annulla</button>' + (okLabel ? '<button class="primary" id="dlgOk">' + esc(okLabel) + '</button>' : '') + '</div>';
+    $('#dlgCancel').onclick = function () { dlg.close(); };
+    if (okLabel) $('#dlgOk').onclick = function () {
+      var b = $('#dlgOk'); b.disabled = true;
+      Promise.resolve().then(onOk).then(function (keep) { if (keep !== true) dlg.close(); })
+        .catch(function (e) { $('#dlgMsg').innerHTML = msg(e.message); })
+        .then(function () { b.disabled = false; });
+    };
+    dlg.showModal();
+    var f = $('input, select, textarea', dlg); if (f) f.focus();
+  }
+  function info(title, html) { dialog(title, html, null); $('#dlgCancel').textContent = 'Chiudi'; }
+  function confirmDo(text, okLabel, fn) { dialog('Conferma', '<p>' + esc(text) + '</p>', okLabel, fn); }
+
+  // ---------------------------------------------------------------- accesso
+  function loginView(mode, note) {
+    $('#logout').classList.add('hidden'); $('#who').textContent = '';
+    var signup = mode === 'signup';
+    h('<div class="card narrow"><h2>' + (signup ? 'Crea il tuo accesso' : 'Accedi') + '</h2>' +
+      (note ? note : '') +
+      '<label>Email</label><input id="em" type="email" autocomplete="username">' +
+      '<label>Password</label><input id="pw" type="password" autocomplete="' + (signup ? 'new-password' : 'current-password') + '">' +
+      (signup ? '<label>Ripeti la password</label><input id="pw2" type="password" autocomplete="new-password">' : '') +
+      '<div id="m"></div><div class="row" style="margin-top:14px"><button class="primary" id="go">' + (signup ? 'Registrati' : 'Accedi') + '</button>' +
+      '<span class="spacer"></span></div>' +
+      '<p class="muted" style="margin-top:16px">' + (signup
+        ? 'Hai già un accesso? <button class="link" id="sw">Accedi</button>'
+        : 'Prima volta? <button class="link" id="sw">Crea il tuo accesso</button> · <button class="link" id="fg">Password dimenticata</button>') + '</p></div>');
+    $('#sw').onclick = function () { loginView(signup ? 'login' : 'signup'); };
+    if ($('#fg')) $('#fg').onclick = function () {
+      var em = val('em'); if (!em) { $('#m').innerHTML = msg('Scrivi la tua email'); return; }
+      api('POST', '/auth/v1/recover?redirect_to=' + BACK, { email: em }, { auth: false })
+        .then(function () { $('#m').innerHTML = msg('Ti abbiamo mandato un\'email per scegliere una nuova password', true); })
+        .catch(function (e) { $('#m').innerHTML = msg(e.message); });
+    };
+    function go() {
+      var em = val('em'), pw = $('#pw').value;
+      if (!em || !pw) { $('#m').innerHTML = msg('Scrivi email e password'); return; }
+      if (signup && pw !== $('#pw2').value) { $('#m').innerHTML = msg('Le due password non coincidono'); return; }
+      $('#go').disabled = true;
+      var p = signup
+        ? api('POST', '/auth/v1/signup?redirect_to=' + BACK, { email: em, password: pw }, { auth: false })
+        : api('POST', '/auth/v1/token?grant_type=password', { email: em, password: pw }, { auth: false });
+      p.then(function (r) {
+        if (r && r.access_token) { setSession(r); route(); return; }
+        loginView('login', msg('Controlla la posta: ti abbiamo mandato il link per confermare l\'email, poi accedi.', true));
+      }).catch(function (e) { $('#m').innerHTML = msg(e.message); $('#go').disabled = false; });
+    }
+    $('#go').onclick = go;
+    $all('input', app).forEach(function (i) { i.onkeydown = function (e) { if (e.key === 'Enter') go(); }; });
+  }
+
+  // link delle email (conferma, recupero password): i dati arrivano dopo il #
+  function readHash() {
+    if (!location.hash || location.hash.indexOf('access_token=') < 0) return null;
+    var p = {}; location.hash.slice(1).split('&').forEach(function (kv) { var i = kv.indexOf('='); p[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1)); });
+    history.replaceState(null, '', location.pathname + location.search);
+    return p;
+  }
+
+  function newPasswordView() {
+    h('<div class="card narrow"><h2>Scegli una nuova password</h2><label>Nuova password</label><input id="pw" type="password" autocomplete="new-password">' +
+      '<div id="m"></div><div class="row" style="margin-top:14px"><button class="primary" id="go">Salva</button></div></div>');
+    $('#go').onclick = function () {
+      api('PUT', '/auth/v1/user', { password: $('#pw').value })
+        .then(function () { route(); })
+        .catch(function (e) { $('#m').innerHTML = msg(e.message); });
+    };
+  }
+
+  // ---------------------------------------------------------------- avvio
+  function route() {
+    if (!URL_ || !KEY) {
+      h('<div class="card narrow"><h2>Cloud non configurato</h2><p>Manca il file config.js con indirizzo e chiave del progetto.</p></div>');
+      return;
+    }
+    if (!S.session) { loginView('login'); return; }
+    $('#who').textContent = (S.user && S.user.email) || '';
+    $('#logout').classList.remove('hidden');
+    h('<div class="loading">Caricamento…</div>');
+    Promise.all([get('memberships?select=*&user_id=eq.' + S.user.id), rpc('cloud_ready')])
+      .then(function (r) {
+        S.memberships = r[0] || [];
+        if (!r[1]) return setupResellerView();
+        if (!S.memberships.length) return inviteView();
+        var admin = S.memberships.filter(function (m) { return m.role === 'reseller_admin'; })[0];
+        S.resellerId = admin ? admin.reseller_id : null;
+        if (admin) return companiesView(admin.reseller_id);
+        return myStoresView();
+      })
+      .catch(function (e) { h('<div class="card narrow">' + msg(e.message) + '<button id="rt">Riprova</button></div>'); $('#rt').onclick = route; });
+  }
+  $('#logout').onclick = function () {
+    api('POST', '/auth/v1/logout', {}).catch(function () {});
+    setSession(null); S.resellerId = null; S.memberships = []; route();
+  };
+
+  function setupResellerView() {
+    h('<div class="card narrow"><h2>Primo avvio del cloud</h2><p class="muted">Configura il rivenditore che gestisce clienti, locali e licenze. ' +
+      'Il tuo accesso diventa amministratore. Si fa una volta sola.</p>' +
+      '<label>Nome del rivenditore</label><input id="rn" value="REDIPOS">' +
+      '<label>Partita IVA</label><input id="rv">' +
+      '<div id="m"></div><div class="row" style="margin-top:14px"><button class="primary" id="go">Configura</button></div></div>');
+    $('#go').onclick = function () {
+      rpc('bootstrap_reseller', { p_name: val('rn'), p_vat: val('rv') }).then(route).catch(function (e) { $('#m').innerHTML = msg(e.message); });
+    };
+  }
+
+  function inviteView() {
+    h('<div class="card narrow"><h2>Collega il tuo accesso</h2><p class="muted">Inserisci il codice invito che ti ha dato il rivenditore (per il titolare) o il titolare (per i responsabili).</p>' +
+      '<label>Codice invito</label><input id="ic" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase">' +
+      '<div id="m"></div><div class="row" style="margin-top:14px"><button class="primary" id="go">Collega</button></div></div>');
+    $('#go').onclick = function () {
+      rpc('redeem_invite', { p_code: val('ic') }).then(route).catch(function (e) { $('#m').innerHTML = msg(e.message); });
+    };
+  }
+
+  // ---------------------------------------------------------------- rivenditore: clienti
+  function companiesView(resellerId) {
+    S.resellerId = resellerId;
+    Promise.all([get('companies?select=*,stores(id,name,licenses(status,valid_until),devices(last_seen,revoked))&order=name'), get('resellers?select=*')])
+      .then(function (r) {
+        var cs = r[0], rs = r[1][0] || {};
+        var rows = cs.map(function (c) {
+          var stores = c.stores || [];
+          var online = 0, devs = 0, warn = 0;
+          stores.forEach(function (s) {
+            (s.devices || []).forEach(function (d) { if (!d.revoked) { devs++; if (d.last_seen && Date.now() - new Date(d.last_seen) < 90000) online++; } });
+            (s.licenses || []).forEach(function (l) { if (l.status !== 'active' || (l.valid_until && new Date(l.valid_until) < new Date(Date.now() + 15 * 864e5))) warn++; });
+          });
+          return '<li class="click" data-c="' + c.id + '"><div class="grow"><b>' + esc(c.name) + '</b><div class="muted">' +
+            esc([c.vat && 'P.IVA ' + c.vat, c.city].filter(Boolean).join(' · ')) + '</div></div>' +
+            '<span class="muted">' + stores.length + ' local' + (stores.length === 1 ? 'e' : 'i') + '</span>' +
+            (devs ? '<span class="pill ' + (online ? '' : 'grey') + '">' + online + '/' + devs + ' casse online</span>' : '') +
+            (warn ? '<span class="pill warn">licenze da rivedere</span>' : '') + '</li>';
+        }).join('');
+        h('<div class="card"><div class="row"><h2 class="grow" style="margin:0">Clienti di ' + esc(rs.name || '') + '</h2>' +
+          '<button class="primary" id="add">Nuovo cliente</button></div>' +
+          (cs.length ? '<ul class="list" style="margin-top:8px">' + rows + '</ul>' : '<p class="muted">Nessun cliente: crea il primo.</p>') + '</div>' +
+          '<div class="card" id="upd"><h2>Aggiornamenti dell\'app</h2><div class="loading">Controllo…</div></div>');
+        releasesCard($('#upd'), resellerId);
+        $('#add').onclick = function () { companyDialog(null); };
+        $all('[data-c]').forEach(function (li) { li.onclick = function () { companyView(li.getAttribute('data-c')); }; });
+      })
+      .catch(function (e) { h(msg(e.message)); });
+  }
+
+  // ---------------------------------------------------------------- registro errori di una cassa
+  function errorsDialog(deviceId, name) {
+    get('app_errors?select=at,kind,message,stack,app_version&device_id=eq.' + deviceId + '&order=at.desc&limit=100').then(function (rows) {
+      if (!rows.length) { info('Errori · ' + name, '<p class="muted">Nessun errore registrato da questa cassa.</p>'); return; }
+      info('Errori · ' + name, '<p class="muted">Ultimi ' + rows.length + ' (errori dell\'app, chiusure non regolari cioè blocchi o app chiusa a forza, rapporti delle prove di carico; [PROVA] = errore avvenuto in modalità prova).</p>' +
+        '<ul class="list" style="max-height:60vh;overflow:auto">' + rows.map(function (r) {
+          return '<li style="display:block"><div><span class="pill ' + (r.kind === 'errore' ? 'off' : r.kind === 'prova' ? 'warn' : 'grey') + '">' + esc(r.kind === 'prova' ? 'prova di carico' : r.kind) + '</span> <b>' + dt(r.at) + '</b>' +
+            (r.app_version ? ' <span class="muted">· versione ' + esc(r.app_version) + '</span>' : '') + '</div>' +
+            (r.kind === 'prova' ? '<pre style="margin-top:4px;white-space:pre-wrap;font-size:12px">' + esc(r.message) + '</pre>' : '<div style="margin-top:4px">' + esc(r.message) + '</div>') +
+            (r.stack ? '<details><summary class="muted">Dettagli tecnici</summary><pre style="white-space:pre-wrap;font-size:12px">' + esc(r.stack) + '</pre></details>' : '') + '</li>';
+        }).join('') + '</ul>');
+    }).catch(function (e) {
+      info('Errori · ' + name, /app_errors|relation|schema cache/i.test(e.message || '')
+        ? '<p class="muted">Il registro errori nel cloud non è ancora attivo (migrazione 0007).</p>' : msg(e.message));
+    });
+  }
+
+  // ---------------------------------------------------------------- aggiornamenti dell'app (portale)
+  // Una sezione per piattaforma: Android (tablet, casse, palmari), Windows, Raspberry Pi (Linux ARM).
+  var PIATTAFORME = [
+    { key: 'android', file: 'app/latest.json', label: 'Android' },
+    { key: 'windows', file: 'app/latest-windows.json', label: 'Windows' },
+    { key: 'linux-arm64', file: 'app/latest-raspberry.json', label: 'Raspberry Pi' }
+  ];
+  function releasesCard(box, resellerId) {
+    function latestOf(f) { return fetch(f, { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
+    Promise.all([
+      Promise.all(PIATTAFORME.map(function (p) { return latestOf(p.file); })),
+      get('app_releases?select=*&reseller_id=eq.' + resellerId + '&order=build.desc&limit=30'),
+      getAll('devices?select=app_version,platform,revoked,last_seen&revoked=is.false'),
+      get('app_releases?select=platform&limit=1').then(function () { return true; }).catch(function () { return false; })
+    ]).then(function (r) {
+      var latests = r[0], all = r[1], devs = r[2], multi = r[3];
+      var html = '<h2>Aggiornamenti dell\'app</h2>' +
+        '<p class="muted">Quando pubblichi una versione, le casse collegate di quella piattaforma mostrano all\'apertura "C\'è un nuovo aggiornamento" e si aggiornano con un tocco (dati, menu e stampanti restano).</p>';
+      PIATTAFORME.forEach(function (p, i) {
+        var latest = latests[i];
+        var rels = all.filter(function (x) { return (x.platform || 'android') === p.key; }).slice(0, 8);
+        if (!latest && !rels.length && p.key !== 'android') return; // piattaforma non ancora usata
+        var pdevs = devs.filter(function (d) { return p.key === 'android' ? !/windows|linux/i.test(d.platform || '') : (d.platform || '').toLowerCase().indexOf(p.key === 'windows' ? 'windows' : 'linux') >= 0; });
+        var pub = rels.filter(function (x) { return x.published; })[0];
+        var upToDate = pub ? pdevs.filter(function (d) { return d.app_version === pub.version; }).length : 0;
+        var fresh = latest && !rels.some(function (x) { return x.build === latest.build; });
+        var blocked = p.key !== 'android' && !multi;
+        html += '<h3>' + p.label + '</h3>' +
+          (pub ? '<p>Versione pubblicata: <b>' + esc(pub.version) + '</b> · aggiornati: <b>' + upToDate + ' di ' + pdevs.length + '</b></p>' : '<p class="muted">Nessuna versione pubblicata.</p>') +
+          (fresh && blocked ? '<p class="muted">Nuova versione ' + esc(latest.version) + ' pronta: per pubblicarla va prima aggiornato il cloud (migrazione 0006).</p>' : '') +
+          (fresh && !blocked ? '<div class="card" style="background:var(--brand-soft);border-color:var(--brand)"><div class="row"><div class="grow"><b>Nuova versione pronta: ' + esc(latest.version) + '</b>' +
+            '<div class="muted">' + (latest.size_bytes ? Math.round(latest.size_bytes / 1048576) + ' MB · ' : '') + esc(latest.date || '') + '</div></div></div>' +
+            '<label>Novità da mostrare alle casse</label><textarea id="rnotes-' + i + '">' + esc(latest.notes || '') + '</textarea>' +
+            '<div class="row" style="margin-top:10px"><button class="primary" data-rpub="' + i + '">Pubblica alle casse</button><button data-rsave="' + i + '">Prepara senza pubblicare</button></div></div>'
+            : (latest || rels.length ? '' : '<p class="muted">Nessun file di aggiornamento sul portale.</p>')) +
+          (rels.length ? '<ul class="list">' + rels.map(function (x) {
+            return '<li><div class="grow"><b>' + esc(x.version) + '</b><div class="muted">' + esc((x.notes || '').slice(0, 120)) + '</div></div>' +
+              (x.published ? '<span class="pill">pubblicata</span><button data-unpub="' + x.id + '">Ritira</button>' : '<span class="pill grey">non pubblicata</span><button data-pubr="' + x.id + '">Pubblica</button>') + '</li>';
+          }).join('') + '</ul>' : '');
+      });
+      box.innerHTML = html;
+      function add(i, published) {
+        var latest = latests[i], p = PIATTAFORME[i];
+        var row = { reseller_id: resellerId, version: latest.version, build: latest.build, url: new URL(latest.url, location.href).href,
+          sha256: latest.sha256, size_bytes: latest.size_bytes || 0, notes: val('rnotes-' + i), published: published, published_at: published ? new Date().toISOString() : null };
+        if (multi) row.platform = p.key;
+        return ins('app_releases', row).then(function () { releasesCard(box, resellerId); }).catch(function (e) { info('Errore', msg(e.message)); });
+      }
+      $all('[data-rpub]', box).forEach(function (b) { b.onclick = function () {
+        var i = +b.getAttribute('data-rpub');
+        confirmDo('Pubblicare la versione ' + latests[i].version + ' (' + PIATTAFORME[i].label + ') a tutte le casse dei tuoi clienti?', 'Pubblica', function () { return add(i, true); });
+      }; });
+      $all('[data-rsave]', box).forEach(function (b) { b.onclick = function () { add(+b.getAttribute('data-rsave'), false); }; });
+      $all('[data-unpub]', box).forEach(function (b) { b.onclick = function () {
+        upd('app_releases', 'id=eq.' + b.getAttribute('data-unpub'), { published: false }).then(function () { releasesCard(box, resellerId); });
+      }; });
+      $all('[data-pubr]', box).forEach(function (b) { b.onclick = function () {
+        upd('app_releases', 'id=eq.' + b.getAttribute('data-pubr'), { published: true, published_at: new Date().toISOString() }).then(function () { releasesCard(box, resellerId); });
+      }; });
+    }).catch(function (e) { box.innerHTML = '<h2>Aggiornamenti dell\'app</h2>' + msg(e.message); });
+  }
+
+  function companyFields(c) {
+    c = c || {};
+    function f(id, label, v) { return '<div><label>' + label + '</label><input id="' + id + '" value="' + esc(v) + '"></div>'; }
+    return '<div class="grid2">' + f('cn', 'Ragione sociale', c.name) + f('cv', 'Partita IVA', c.vat) + f('cf', 'Codice fiscale', c.tax_code) +
+      f('ce', 'Email', c.email) + f('cp', 'Telefono', c.phone) + f('ca', 'Indirizzo', c.address) + f('cz', 'CAP', c.zip) +
+      f('cc', 'Comune', c.city) + f('cr', 'Provincia', c.province) + '</div><label>Note</label><textarea id="cno">' + esc(c.notes) + '</textarea>';
+  }
+  function companyRow() {
+    return { name: val('cn'), vat: val('cv'), tax_code: val('cf'), email: val('ce'), phone: val('cp'), address: val('ca'),
+      zip: val('cz'), city: val('cc'), province: val('cr'), notes: val('cno') };
+  }
+  function companyDialog(c) {
+    dialog(c ? 'Dati del cliente' : 'Nuovo cliente', companyFields(c), 'Salva', function () {
+      var row = companyRow();
+      if (!row.name) throw new Error('Scrivi la ragione sociale');
+      if (c) return upd('companies', 'id=eq.' + c.id, row).then(function () { companyView(c.id); });
+      row.reseller_id = S.resellerId;
+      return ins('companies', row).then(function (n) { companyView(n.id); });
+    });
+  }
+
+  function companyView(id) {
+    var isReseller = !!S.resellerId;
+    Promise.all([get('companies?select=*&id=eq.' + id), get('stores?select=*,licenses(*),devices(*)&company_id=eq.' + id + '&order=name'),
+      get('memberships?select=*&company_id=eq.' + id), get('invites?select=*&company_id=eq.' + id + '&used_at=is.null&order=created_at.desc')])
+      .then(function (r) {
+        var c = r[0][0]; if (!c) throw new Error('Cliente non trovato');
+        var stores = r[1], owners = r[2], invites = r[3];
+        h((isReseller ? '<div class="crumbs"><button class="link" id="back">‹ Clienti</button></div>' : '') +
+          '<div class="card"><div class="row"><h2 class="grow" style="margin:0">' + esc(c.name) + '</h2><button id="ed">Modifica dati</button>' +
+          (isReseller ? '<button class="danger" id="dc">Elimina</button>' : '') + '</div>' +
+          '<div class="muted">' + esc([c.vat && 'P.IVA ' + c.vat, c.address, c.zip, c.city, c.province, c.email, c.phone].filter(Boolean).join(' · ')) + '</div></div>' +
+          '<div class="card"><div class="row"><h2 class="grow" style="margin:0">Locali</h2>' + (isReseller ? '<button class="primary" id="as">Nuovo locale</button>' : '') + '</div>' +
+          (stores.length ? '<ul class="list">' + stores.map(storeRow).join('') + '</ul>' : '<p class="muted">Nessun locale.</p>') + '</div>' +
+          '<div class="card"><div class="row"><h2 class="grow" style="margin:0">Titolari</h2>' + (isReseller ? '<button id="io">Invita titolare</button>' : '') + '</div>' +
+          (owners.length ? '<ul class="list">' + owners.map(function (m) { return '<li><span class="grow">' + esc(m.email || m.user_id) + '</span>' + (isReseller ? '<button class="danger" data-rm="' + m.id + '">Togli</button>' : '') + '</li>'; }).join('') + '</ul>' : '<p class="muted">Nessun titolare collegato.</p>') +
+          (invites.length ? '<h3>Inviti non ancora usati</h3><ul class="list">' + invites.map(function (i) { return '<li><span class="code">' + esc(i.code) + '</span><span class="grow muted">scade il ' + day(i.expires_at) + '</span><button class="danger" data-di="' + esc(i.code) + '">Annulla</button></li>'; }).join('') + '</ul>' : '') +
+          '</div>');
+        if ($('#back')) $('#back').onclick = function () { companiesView(S.resellerId); };
+        $('#ed').onclick = function () { companyDialog(c); };
+        if ($('#dc')) $('#dc').onclick = function () {
+          confirmDo('Eliminare il cliente ' + c.name + '? Prima vanno eliminati i suoi locali.', 'Elimina', function () {
+            return del('companies', 'id=eq.' + c.id).then(function () { companiesView(S.resellerId); });
+          });
+        };
+        if ($('#as')) $('#as').onclick = function () {
+          dialog('Nuovo locale', '<label>Nome del locale</label><input id="sn" placeholder="es. Bagni Marconi"><label>Indirizzo</label><input id="sa"><label>Comune</label><input id="sc">' +
+            '<label>Casse comprese nella licenza</label><input id="sm" type="number" min="1" max="50" value="1"><label>Licenza valida fino al (vuoto = senza scadenza)</label><input id="su" type="date">',
+            'Crea', function () {
+              if (!val('sn')) throw new Error('Scrivi il nome del locale');
+              return ins('stores', { company_id: c.id, name: val('sn'), address: val('sa'), city: val('sc') }).then(function (s) {
+                return ins('licenses', { store_id: s.id, max_devices: parseInt(val('sm') || '1', 10), valid_until: val('su') || null }).then(function () {
+                  // i dati dell'attività del locale partono da quelli del cliente
+                  return upsert('store_settings', [
+                    { store_id: s.id, key: 'biz_name', value: c.name }, { store_id: s.id, key: 'biz_vat', value: c.vat },
+                    { store_id: s.id, key: 'biz_cf', value: c.tax_code }, { store_id: s.id, key: 'biz_address', value: c.address },
+                    { store_id: s.id, key: 'biz_zip', value: c.zip }, { store_id: s.id, key: 'biz_city', value: c.city },
+                    { store_id: s.id, key: 'biz_prov', value: c.province }]);
+                }).then(function () { storeView(s.id); });
+              });
+            });
+        };
+        if ($('#io')) $('#io').onclick = function () {
+          rpc('create_invite', { p_role: 'owner', p_company: c.id }).then(function (code) {
+            info('Invito per il titolare', '<p>Dai questo codice al titolare: crea il suo accesso al backoffice e lo inserisce. Vale 14 giorni, una volta sola.</p><p><span class="code">' + esc(code) + '</span></p>');
+            dlg.addEventListener('close', function once() { dlg.removeEventListener('close', once); companyView(c.id); });
+          }).catch(function (e) { info('Errore', msg(e.message)); });
+        };
+        $all('[data-rm]').forEach(function (b) { b.onclick = function () { confirmDo('Togliere l\'accesso a questo titolare?', 'Togli', function () { return del('memberships', 'id=eq.' + b.getAttribute('data-rm')).then(function () { companyView(c.id); }); }); }; });
+        $all('[data-di]').forEach(function (b) { b.onclick = function () { del('invites', 'code=eq.' + b.getAttribute('data-di')).then(function () { companyView(c.id); }); }; });
+        $all('[data-s]').forEach(function (li) { li.onclick = function () { storeView(li.getAttribute('data-s')); }; });
+      })
+      .catch(function (e) { h(msg(e.message)); });
+  }
+
+  function licensePill(l) {
+    if (!l) return '<span class="pill grey">senza licenza</span>';
+    if (l.status !== 'active') return '<span class="pill off">sospesa</span>';
+    if (l.valid_until) {
+      var days = Math.round((new Date(l.valid_until) - new Date(iso(new Date()))) / 864e5);
+      if (days < 0) return '<span class="pill off">scaduta</span>';
+      if (days <= 15) return '<span class="pill warn">scade tra ' + days + ' gg</span>';
+      return '<span class="pill">fino al ' + day(l.valid_until) + '</span>';
+    }
+    return '<span class="pill">attiva</span>';
+  }
+  function isOnline(d) { return d.last_seen && !d.revoked && Date.now() - new Date(d.last_seen) < 90000; }
+  function storeRow(s) {
+    var devs = (s.devices || []).filter(function (d) { return !d.revoked; });
+    var on = devs.filter(isOnline).length;
+    return '<li class="click" data-s="' + s.id + '"><div class="grow"><b>' + esc(s.name) + '</b><div class="muted">' + esc([s.address, s.city].filter(Boolean).join(', ')) + '</div></div>' +
+      licensePill((s.licenses || [])[0]) + (devs.length ? '<span class="pill ' + (on ? '' : 'grey') + '">' + on + '/' + devs.length + ' online</span>' : '<span class="pill grey">nessuna cassa</span>') + '</li>';
+  }
+
+  // ---------------------------------------------------------------- titolari e manager: i miei locali
+  function myStoresView() {
+    get('stores?select=*,licenses(*),devices(*),companies(id,name)&order=name').then(function (stores) {
+      if (stores.length === 1) return storeView(stores[0].id);
+      var owner = S.memberships.filter(function (m) { return m.role === 'owner'; })[0];
+      h('<div class="card"><h2>I tuoi locali</h2>' + (stores.length ? '<ul class="list">' + stores.map(storeRow).join('') + '</ul>' : '<p class="muted">Nessun locale.</p>') + '</div>' +
+        (owner ? '<div class="card"><button id="co">Dati dell\'azienda e titolari</button></div>' : ''));
+      $all('[data-s]').forEach(function (li) { li.onclick = function () { storeView(li.getAttribute('data-s')); }; });
+      if ($('#co')) $('#co').onclick = function () { companyView(owner.company_id); };
+    }).catch(function (e) { h(msg(e.message)); });
+  }
+
+  // ---------------------------------------------------------------- locale
+  var SETTINGS_FORM = [
+    ['Dati dell\'attività (su scontrini e fatture)', [
+      ['biz_name', 'Ragione sociale'], ['biz_vat', 'Partita IVA'], ['biz_cf', 'Codice fiscale'], ['biz_address', 'Indirizzo'],
+      ['biz_zip', 'CAP'], ['biz_city', 'Comune'], ['biz_prov', 'Provincia'],
+      ['biz_regime', 'Regime fiscale', 'select', [['RF01', 'RF01 · Ordinario'], ['RF19', 'RF19 · Forfettario'], ['RF02', 'RF02 · Contribuenti minimi'], ['RF04', 'RF04 · Agricoltura e pesca'], ['RF05', 'RF05 · Sali e tabacchi'], ['RF10', 'RF10 · Intrattenimenti e giochi'], ['RF11', 'RF11 · Agenzie di viaggi'], ['RF12', 'RF12 · Agriturismo'], ['RF14', 'RF14 · Beni usati'], ['RF17', 'RF17 · IVA per cassa'], ['RF18', 'RF18 · Altro']]],
+      ['biz_iban', 'IBAN (fatture con bonifico)'], ['biz_email', 'Email'], ['biz_phone', 'Telefono'],
+      ['biz_rea_office', 'Ufficio REA (sigla provincia, solo società)'], ['biz_rea_number', 'Numero REA'],
+      ['biz_capital', 'Capitale sociale € (solo società di capitali)'],
+      ['biz_single_member', 'Soci', 'select', [['', 'Non indicato'], ['SU', 'Socio unico'], ['SM', 'Più soci']]],
+      ['slip_header', 'Intestazione di preconto e ricevute (vuoto = dati dell\'attività)', 'area'], ['footer', 'Piè di ricevuta', 'area']]],
+    ['Ricevute e conti', [
+      ['print_on_checkout', 'All\'incasso stampa le righe mai inviate (es. caffè battuto al banco)', 'bool', '1'],
+      ['assoc_mode', 'Circolo, ASD o club: ricevute non fiscali (solo enti esonerati, verifica col commercialista)', 'bool', '0'],
+      ['assoc_note', 'Dicitura in fondo alla ricevuta non fiscale', 'area'],
+      ['cover_vat', 'IVA del coperto', 'select', [['10', '10%'], ['22', '22%'], ['4', '4%'], ['5', '5%'], ['0', '0%']], '10'],
+      ['variants_on_add', 'Chiedi le varianti quando si aggiunge un prodotto', 'bool', '0']]],
+    ['Marketing', [['points_per_euro', 'Punti fedeltà per ogni euro speso (1 punto = 1 centesimo di sconto)', 'number', '1']]],
+    ['Sicurezza', [
+      ['reports_locked', 'Report e statistiche in cassa solo col PIN di un amministratore', 'bool', '1'],
+      ['autolock_min', 'Blocco automatico della cassa dopo minuti di inattività (0 = mai)', 'number', '0']]],
+    ['Aspetto della cassa', [
+      ['show_photos', 'Foto sui tasti', 'bool', '0'], ['cart_dense', 'Righe del conto compatte', 'bool', '1'],
+      ['button_size', 'Dimensione dei tasti', 'select', [['s', 'Piccoli'], ['m', 'Medi'], ['l', 'Grandi']], 'm'],
+      ['cat_font', 'Testo delle categorie', 'select', [['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16']], '12'],
+      ['theme_mode', 'Tema', 'select', [['system', 'Come il dispositivo'], ['light', 'Chiaro'], ['dark', 'Scuro']], 'system']]]
+  ];
+
+  function storeView(id, tab) {
+    tab = tab || 'panoramica';
+    Promise.all([get('stores?select=*,companies(id,name,reseller_id)&id=eq.' + id), get('licenses?select=*&store_id=eq.' + id + '&order=created_at'),
+      get('devices?select=*&store_id=eq.' + id + '&order=activated_at')])
+      .then(function (r) {
+        var s = r[0][0]; if (!s) throw new Error('Locale non trovato');
+        var lic = r[1], devs = r[2];
+        var isReseller = !!S.resellerId;
+        var canPeople = isReseller || S.memberships.some(function (m) { return m.role === 'owner' && m.company_id === s.company_id; });
+        var tabs = [['panoramica', 'Licenza e casse'], ['catalogo', 'Catalogo'], ['canali', 'Canali di vendita'], ['impostazioni', 'Impostazioni'], ['marketing', 'Convenzioni'], ['analytics', 'Analytics']]
+          .concat(canPeople ? [['persone', 'Persone']] : []).concat([['registro', 'Registro']]);
+        h('<div class="crumbs"><button class="link" id="back">‹ ' + esc(isReseller || canPeople ? (s.companies && s.companies.name) || 'Indietro' : 'I tuoi locali') + '</button></div>' +
+          '<div class="card" style="padding-bottom:4px"><div class="row"><h2 class="grow" style="margin:0">' + esc(s.name) + '</h2>' + licensePill(lic[0]) + '</div>' +
+          '<div class="tabs">' + tabs.map(function (t) { return '<button data-t="' + t[0] + '" class="' + (t[0] === tab ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div></div>' +
+          '<div id="tab"></div>');
+        $('#back').onclick = function () { if (isReseller || canPeople) companyView(s.company_id); else myStoresView(); };
+        $all('[data-t]').forEach(function (b) { b.onclick = function () { storeView(id, b.getAttribute('data-t')); }; });
+        var box = $('#tab');
+        if (tab === 'panoramica') overviewTab(box, s, lic, devs, isReseller);
+        else if (tab === 'impostazioni') settingsTab(box, s);
+        else if (tab === 'marketing') conventionsTab(box, s);
+        else if (tab === 'catalogo') catalogTab(box, s);
+        else if (tab === 'canali') channelsTab(box, s);
+        else if (tab === 'analytics') analyticsTab(box, s);
+        else if (tab === 'persone') peopleTab(box, s);
+        else logTab(box, s);
+      })
+      .catch(function (e) { h(msg(e.message)); });
+  }
+
+  function overviewTab(box, s, lic, devs, isReseller) {
+    var html = '<div class="card"><div class="row"><h2 class="grow" style="margin:0">Licenze</h2>' + (isReseller ? '<button id="nl">Nuova licenza</button>' : '') + '</div>';
+    html += lic.length ? '<ul class="list">' + lic.map(function (l) {
+      var used = devs.filter(function (d) { return d.license_id === l.id && !d.revoked; }).length;
+      return '<li><div class="grow"><span class="code">' + esc(l.code) + '</span><div class="muted" style="margin-top:4px">Piano ' + esc(l.plan) + ' · ' + used + ' di ' + l.max_devices + ' casse in uso' + (l.notes ? ' · ' + esc(l.notes) : '') + '</div></div>' +
+        licensePill(l) + (isReseller ? '<button data-el="' + l.id + '">Modifica</button>' : '') + '</li>';
+    }).join('') + '</ul>' : '<p class="muted">Nessuna licenza.</p>';
+    html += '<p class="muted">Per collegare una cassa: Impostazioni → Attività e licenza → Attiva la licenza, e scrivi il codice.</p></div>';
+    html += '<div class="card"><h2>Casse</h2>' + (devs.length ? '<ul class="list">' + devs.map(function (d) {
+      return '<li><div class="grow"><b>' + esc(d.name || 'Cassa') + '</b><div class="muted">Versione ' + esc(d.app_version || '—') + ' · attivata il ' + day(d.activated_at) + ' · ultimo contatto ' + dt(d.last_seen) + '</div></div>' +
+        (d.revoked ? '<span class="pill off">disattivata</span>' : isOnline(d) ? '<span class="pill">online</span>' : '<span class="pill grey">offline</span>') +
+        '<button data-err="' + d.id + '" data-errn="' + esc(d.name || 'Cassa') + '">Errori</button>' +
+        '<button data-rn="' + d.id + '">Rinomina</button>' +
+        (d.revoked ? '<button data-ra="' + d.id + '">Riattiva</button>' : '<button class="danger" data-rv="' + d.id + '">Disattiva</button>') +
+        '<button class="danger" data-rd="' + d.id + '" title="Libera il posto nella licenza">Rimuovi</button></li>';
+    }).join('') + '</ul>' : '<p class="muted">Nessuna cassa collegata.</p>') + '</div>';
+    box.innerHTML = html;
+    if ($('#nl')) $('#nl').onclick = function () { licenseDialog(s, null); };
+    $all('[data-el]', box).forEach(function (b) { b.onclick = function () { licenseDialog(s, lic.filter(function (l) { return l.id === b.getAttribute('data-el'); })[0]); }; });
+    function devUpd(id, row) { return upd('devices', 'id=eq.' + id, row).then(function () { storeView(s.id); }); }
+    $all('[data-rn]', box).forEach(function (b) { b.onclick = function () {
+      var d = devs.filter(function (x) { return x.id === b.getAttribute('data-rn'); })[0];
+      dialog('Nome della cassa', '<input id="dn" value="' + esc(d.name) + '">', 'Salva', function () { return devUpd(d.id, { name: val('dn') }); });
+    }; });
+    $all('[data-rv]', box).forEach(function (b) { b.onclick = function () { confirmDo('Disattivare questa cassa? Smette di ricevere impostazioni e mostra l\'avviso di licenza.', 'Disattiva', function () { return devUpd(b.getAttribute('data-rv'), { revoked: true }); }); }; });
+    $all('[data-ra]', box).forEach(function (b) { b.onclick = function () { devUpd(b.getAttribute('data-ra'), { revoked: false }); }; });
+    $all('[data-err]', box).forEach(function (b) { b.onclick = function () { errorsDialog(b.getAttribute('data-err'), b.getAttribute('data-errn')); }; });
+    $all('[data-rd]', box).forEach(function (b) { b.onclick = function () { confirmDo('Rimuovere la cassa e liberare il posto nella licenza? Per ricollegarla servirà di nuovo il codice. Le vendite già inviate restano negli analytics.', 'Rimuovi', function () { return del('devices', 'id=eq.' + b.getAttribute('data-rd')).then(function () { storeView(s.id); }); }); }; });
+  }
+
+  function licenseDialog(s, l) {
+    l = l || { plan: 'base', max_devices: 1, status: 'active', valid_until: null, notes: '' };
+    dialog(l.id ? 'Licenza ' + l.code : 'Nuova licenza',
+      '<label>Piano</label><input id="lp" value="' + esc(l.plan) + '">' +
+      '<label>Casse comprese</label><input id="lm" type="number" min="1" max="50" value="' + l.max_devices + '">' +
+      '<label>Valida fino al (vuoto = senza scadenza)</label><input id="lu" type="date" value="' + esc(l.valid_until || '') + '">' +
+      '<div class="switch"><input type="checkbox" id="ls"' + (l.status === 'active' ? ' checked' : '') + '><span>Attiva (spenta = sospesa: le casse mostrano l\'avviso)</span></div>' +
+      '<label>Note</label><input id="ln" value="' + esc(l.notes) + '">' +
+      (l.id ? '<div class="row" style="margin-top:10px"><button id="ry">Rinnova di un anno</button></div>' : ''),
+      'Salva', function () {
+        var row = { plan: val('lp') || 'base', max_devices: parseInt(val('lm') || '1', 10), valid_until: val('lu') || null,
+          status: $('#ls').checked ? 'active' : 'suspended', notes: val('ln') };
+        var p = l.id ? upd('licenses', 'id=eq.' + l.id, row) : ins('licenses', Object.assign({ store_id: s.id }, row));
+        return p.then(function () { storeView(s.id); });
+      });
+    if ($('#ry')) $('#ry').onclick = function () {
+      var base = l.valid_until && new Date(l.valid_until) > new Date() ? new Date(l.valid_until) : new Date();
+      base.setFullYear(base.getFullYear() + 1);
+      $('#lu').value = iso(base);
+    };
+  }
+
+  function settingsTab(box, s) {
+    get('store_settings?select=key,value,updated_at&store_id=eq.' + s.id).then(function (rows) {
+      var cur = {}; rows.forEach(function (r) { cur[r.key] = r.value; });
+      var html = '<div class="card"><p class="muted" style="margin-top:0">Le modifiche arrivano sulle casse del locale entro pochi secondi.</p>';
+      SETTINGS_FORM.forEach(function (sec) {
+        html += '<h3>' + esc(sec[0]) + '</h3>';
+        sec[1].forEach(function (f) {
+          var k = f[0], label = f[1], type = f[2] || 'text', v = cur[k] != null ? cur[k] : (type === 'select' ? f[4] : f[3]) || '';
+          if (type === 'bool') html += '<div class="switch"><input type="checkbox" data-k="' + k + '" data-type="bool"' + (v === '1' ? ' checked' : '') + '><span>' + esc(label) + '</span></div>';
+          else if (type === 'area') html += '<label>' + esc(label) + '</label><textarea data-k="' + k + '">' + esc(v) + '</textarea>';
+          else if (type === 'select') html += '<label>' + esc(label) + '</label><select data-k="' + k + '">' + f[3].map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === v ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select>';
+          else html += '<label>' + esc(label) + '</label><input data-k="' + k + '" value="' + esc(v) + '"' + (type === 'number' ? ' type="number" min="0"' : '') + '>';
+        });
+      });
+      html += '<div id="m"></div><div class="row" style="margin-top:16px"><button class="primary" id="sv">Salva e invia alle casse</button></div></div>';
+      box.innerHTML = html;
+      // si mandano solo i campi toccati (gli altri restano come sono sulle casse)
+      $all('[data-k]', box).forEach(function (e) {
+        var mark = function () { e.setAttribute('data-dirty', '1'); };
+        e.addEventListener('input', mark); e.addEventListener('change', mark);
+      });
+      $('#sv').onclick = function () {
+        var out = [];
+        $all('[data-k][data-dirty]', box).forEach(function (e) {
+          var k = e.getAttribute('data-k');
+          var v = e.getAttribute('data-type') === 'bool' ? (e.checked ? '1' : '0') : e.value.trim();
+          if (cur[k] !== v) out.push({ store_id: s.id, key: k, value: v });
+        });
+        if (!out.length) { $('#m').innerHTML = msg('Nessuna modifica', true); return; }
+        $('#sv').disabled = true;
+        upsert('store_settings', out).then(function () {
+          out.forEach(function (o) { cur[o.key] = o.value; });
+          $('#m').innerHTML = msg('Salvato: ' + out.length + ' impostazion' + (out.length === 1 ? 'e' : 'i') + ' inviate alle casse', true);
+        }).catch(function (e) { $('#m').innerHTML = msg(e.message); }).then(function () { $('#sv').disabled = false; });
+      };
+    }).catch(function (e) { box.innerHTML = msg(e.message); });
+  }
+
+  // ---------------------------------------------------------------- catalogo
+  var VATS = [22, 10, 5, 4, 0];
+  var KIND_LABEL = { kiosk: 'Kiosk', qr: 'Menu QR al tavolo', delivery: 'Delivery', pos: 'Punto cassa' };
+  function fixedChannels() { return [{ key: 'cassa', name: 'Cassa', fixed: true }, { key: 'palmare', name: 'Palmari', fixed: true }]; }
+  // in cassa, sui palmari e sui punti cassa un prodotto è visibile se non è spento; sui canali online va pubblicato
+  function defaultOn(ch) { return !!ch.fixed || ch.kind === 'pos'; }
+  var CC = {}, CATBY = {}; // impostazioni delle categorie per canale (caricate dal catalogo)
+  function isPublished(pubs, pid, ch, prod) {
+    if (!defaultOn(ch) && prod) return onlineVisible(pubs, CC[ch.key] || {}, CATBY, prod, ch.key);
+    var p = pubs[pid + '|' + ch.key];
+    if (p) return p.visible;
+    return defaultOn(ch);
+  }
+
+  function catalogTab(box, s, state) {
+    state = state || { cat: '', q: '' };
+    box.innerHTML = '<div class="loading">Caricamento del catalogo…</div>';
+    Promise.all([
+      getAll('catalog_categories?select=*&store_id=eq.' + s.id + '&deleted=is.false&order=sort_order,name'),
+      getAll('catalog_products?select=*&store_id=eq.' + s.id + '&deleted=is.false&order=sort_order,name'),
+      getAll('catalog_publications?select=*&store_id=eq.' + s.id + '&item_kind=eq.product'),
+      get('sales_channels?select=*&store_id=eq.' + s.id + '&order=kind,created_at'),
+      getAll('catalog_category_channels?select=*&store_id=eq.' + s.id)
+    ]).then(function (r) {
+      var cats = r[0], prods = r[1], pubs = {}, chans = fixedChannels().concat(r[3]);
+      CC = {}; r[4].forEach(function (x) { (CC[x.channel_key] = CC[x.channel_key] || {})[x.category_id] = x; });
+      r[2].forEach(function (x) { pubs[x.item_id + '|' + x.channel_key] = x; });
+      var catById = {}; cats.forEach(function (c) { catById[c.id] = c; });
+      CATBY = catById;
+      function catPath(id) { var c = catById[id], out = []; while (c) { out.unshift(c.name); c = catById[c.parent_id]; } return out.join(' › '); }
+      function inCat(p) {
+        if (!state.cat) return true;
+        var c = catById[p.category_id];
+        while (c) { if (c.id === state.cat) return true; c = catById[c.parent_id]; }
+        return false;
+      }
+      function render() {
+        var q = state.q.toLowerCase();
+        var list = prods.filter(function (p) {
+          return inCat(p) && (!q || p.name.toLowerCase().indexOf(q) >= 0 || (p.barcode || '').indexOf(q) >= 0 || (p.code || '').toLowerCase() === q);
+        });
+        var shown = list.slice(0, 300);
+        var catOpts = '<option value="">Tutte le categorie (' + prods.length + ')</option>' + cats.map(function (c) {
+          return '<option value="' + c.id + '"' + (c.id === state.cat ? ' selected' : '') + '>' + esc(catPath(c.id)) + (c.hidden ? ' (nascosta in cassa)' : '') + '</option>';
+        }).join('');
+        box.innerHTML = '<div class="card"><div class="row"><h2 class="grow" style="margin:0">Catalogo</h2>' +
+          '<button id="nc">Nuova categoria</button><button class="primary" id="np">Nuovo prodotto</button></div>' +
+          '<p class="muted">Le modifiche arrivano su tutte le casse del locale entro un minuto. Ogni prodotto si pubblica sui canali: ' +
+          'cassa e palmari lo mostrano se non è spento, kiosk, menu QR e delivery solo se pubblicato.</p>' +
+          '<div class="grid2"><div><label>Categoria</label><select id="fc">' + catOpts + '</select></div>' +
+          '<div><label>Cerca (nome, codice a barre)</label><input id="fq" value="' + esc(state.q) + '"></div></div>' +
+          (state.cat ? '<div class="row" style="margin-top:10px"><button id="ec">Modifica la categoria</button></div>' : '') +
+          '</div><div class="card">' + (shown.length ? '<table class="t"><tr><th>Prodotto</th><th>Categoria</th><th class="n">Prezzo</th><th class="n">IVA</th><th>Canali</th></tr>' +
+          shown.map(function (p) {
+            var on = chans.filter(function (ch) { return isPublished(pubs, p.id, ch, p); });
+            return '<tr class="click" data-p="' + p.id + '" style="cursor:pointer"><td><b>' + esc(p.name) + '</b>' + (p.hide_button ? ' <span class="pill grey">senza tasto</span>' : '') + (on.length ? '' : ' <span class="pill off">fuori vendita</span>') + '</td><td class="muted">' + esc(catPath(p.category_id)) + '</td>' +
+              '<td class="n">' + eur(p.price_cents) + '</td><td class="n">' + p.vat + '%</td><td>' +
+              on.map(function (ch) { return '<span class="pill' + (ch.fixed ? ' grey' : '') + '">' + esc(ch.name) + '</span> '; }).join('') + '</td></tr>';
+          }).join('') + '</table>' + (list.length > shown.length ? '<p class="muted">Mostrati 300 di ' + list.length + ': restringi con la ricerca o la categoria.</p>' : '')
+          : '<p class="muted">' + (prods.length ? 'Nessun prodotto trovato.' : 'Catalogo vuoto: collega una cassa (manda il suo catalogo) oppure crea i prodotti qui.') + '</p>') + '</div>';
+        $('#fc').onchange = function () { state.cat = this.value; render(); };
+        var t; $('#fq').oninput = function () { var v = this.value; clearTimeout(t); t = setTimeout(function () { state.q = v; render(); var f = $('#fq'); f.focus(); f.setSelectionRange(v.length, v.length); }, 250); };
+        $('#np').onclick = function () { productDialog(null); };
+        $('#nc').onclick = function () { categoryDialog(null); };
+        if ($('#ec')) $('#ec').onclick = function () { categoryDialog(catById[state.cat]); };
+        $all('[data-p]', box).forEach(function (tr) { tr.onclick = function () { productDialog(prods.filter(function (p) { return p.id === tr.getAttribute('data-p'); })[0]); }; });
+      }
+      function reload() { catalogTab(box, s, state); }
+
+      function productDialog(p) {
+        if (!cats.length) { info('Prima una categoria', '<p>Crea almeno una categoria (es. Bevande, Cucina).</p>'); return; }
+        p = p || { id: null, name: '', category_id: state.cat || cats[0].id, price_cents: 0, vat: 10, description: '', allergens: '', barcode: '', prep_minutes: null, hide_button: false };
+        var chRows = chans.map(function (ch) {
+          var pub = pubs[(p.id || '') + '|' + ch.key];
+          var vis = p.id ? isPublished(pubs, p.id, ch, p) : defaultOn(ch);
+          return '<tr><td><label class="switch" style="margin:0;color:inherit"><input type="checkbox" data-cv="' + esc(ch.key) + '"' + (vis ? ' checked' : '') + '> ' + esc(ch.name) +
+            (ch.kind ? ' <span class="muted">· ' + esc(KIND_LABEL[ch.kind] || ch.kind) + '</span>' : '') + '</label></td>' +
+            '<td style="width:120px"><input data-cp="' + esc(ch.key) + '" placeholder="uguale" value="' + (pub && pub.price_cents != null ? (pub.price_cents / 100).toFixed(2).replace('.', ',') : '') + '"></td></tr>';
+        }).join('');
+        dialog(p.id ? p.name : 'Nuovo prodotto',
+          '<label>Nome</label><input id="pn" value="' + esc(p.name) + '">' +
+          '<div class="grid2"><div><label>Categoria</label><select id="pc">' + cats.map(function (c) { return '<option value="' + c.id + '"' + (c.id === p.category_id ? ' selected' : '') + '>' + esc(catPath(c.id)) + '</option>'; }).join('') + '</select></div>' +
+          '<div><label>Prezzo (€)</label><input id="pp" inputmode="decimal" value="' + (p.price_cents / 100).toFixed(2).replace('.', ',') + '"></div>' +
+          '<div><label>IVA</label><select id="pv">' + VATS.map(function (v) { return '<option' + (v === p.vat ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select></div>' +
+          '<div><label>Codice a barre</label><input id="pb" value="' + esc(p.barcode) + '"></div>' +
+          '<div><label>Tempo di preparazione (min)</label><input id="pt" type="number" min="0" value="' + (p.prep_minutes == null ? '' : p.prep_minutes) + '"></div></div>' +
+          '<label>Descrizione (si vede su kiosk, menu QR e delivery)</label><textarea id="pd">' + esc(p.description) + '</textarea>' +
+          '<label>Allergeni</label><input id="pa" value="' + esc(p.allergens) + '" placeholder="es. glutine, latte, frutta a guscio">' +
+          '<div class="switch"><input type="checkbox" id="ph"' + (p.hide_button ? ' checked' : '') + '><span>Senza tasto in cassa (si vende col codice a barre o la ricerca)</span></div>' +
+          '<h3>Dove si vende</h3><table class="t">' + chRows + '</table>' +
+          (chans.length <= 2 ? '<p class="muted">Per kiosk, menu QR e delivery crea i canali nella scheda Canali di vendita.</p>' : '') +
+          (p.id ? '<div class="row" style="margin-top:12px"><button class="danger" id="pdel">Togli dalla vendita</button>' +
+            '<span class="muted">I prodotti non si eliminano: restano nello storico e nelle statistiche.</span></div>' : ''),
+          'Salva', function () {
+            var name = val('pn'); if (!name) throw new Error('Scrivi il nome');
+            var price = Math.round(parseFloat((val('pp') || '0').replace(',', '.')) * 100);
+            if (isNaN(price) || price < 0) throw new Error('Prezzo non valido');
+            var id = p.id || uuid();
+            var row = { id: id, store_id: s.id, category_id: $('#pc').value, name: name, price_cents: price, vat: parseInt($('#pv').value, 10),
+              barcode: val('pb'), prep_minutes: val('pt') === '' ? null : parseInt(val('pt'), 10), description: val('pd'), allergens: val('pa'),
+              hide_button: $('#ph').checked, deleted: false };
+            var pubRows = [];
+            chans.forEach(function (ch) {
+              var vis = $('[data-cv="' + ch.key + '"]').checked;
+              var pv = $('[data-cp="' + ch.key + '"]').value.trim();
+              var pc = pv === '' ? null : Math.round(parseFloat(pv.replace(',', '.')) * 100);
+              if (pc != null && isNaN(pc)) throw new Error('Prezzo non valido per ' + ch.name);
+              var old = pubs[id + '|' + ch.key];
+              var was = p.id ? isPublished(pubs, id, ch, p) : defaultOn(ch);
+              if (vis !== was || (old ? old.price_cents : null) !== pc) {
+                pubRows.push({ store_id: s.id, item_kind: 'product', item_id: id, channel_key: ch.key, visible: vis, price_cents: pc });
+              }
+            });
+            return upsert('catalog_products', [row]).then(function () { return pubRows.length ? upsert('catalog_publications', pubRows) : null; }).then(reload);
+          });
+        if ($('#pdel')) $('#pdel').onclick = function () {
+          dlg.close();
+          confirmDo('Togliere ' + p.name + ' dalla vendita? Sparisce da casse, palmari e canali ma resta nello storico; si rimette in vendita riaccendendo i canali.', 'Togli dalla vendita', function () {
+            return upsert('catalog_publications', chans.map(function (ch) {
+              var old = pubs[p.id + '|' + ch.key];
+              return { store_id: s.id, item_kind: 'product', item_id: p.id, channel_key: ch.key, visible: false, price_cents: old ? old.price_cents : null };
+            })).then(reload);
+          });
+        };
+      }
+
+      function categoryDialog(c) {
+        var editing = !!c;
+        c = c || { id: null, name: '', parent_id: state.cat || null, hidden: false, sort_order: 0 };
+        var online = chans.filter(function (ch) { return !ch.fixed; });
+        dialog(editing ? c.name : 'Nuova categoria',
+          '<label>Nome</label><input id="cn" value="' + esc(c.name) + '">' +
+          '<label>Dentro la categoria</label><select id="cpar"><option value="">— nessuna (principale) —</option>' +
+          cats.filter(function (x) { return x.id !== c.id; }).map(function (x) { return '<option value="' + x.id + '"' + (x.id === c.parent_id ? ' selected' : '') + '>' + esc(catPath(x.id)) + '</option>'; }).join('') + '</select>' +
+          '<label>Ordine (più basso = prima)</label><input id="cs" type="number" value="' + (c.sort_order || 0) + '">' +
+          '<div class="switch"><input type="checkbox" id="ch"' + (c.hidden ? ' checked' : '') + '><span>Nascosta in cassa (si vende col codice a barre, es. sigarette)</span></div>' +
+          (editing && online.length ? '<h3>Pubblica tutti i prodotti della categoria</h3><div class="row">' + online.map(function (ch) {
+            return '<button data-all="' + esc(ch.key) + '">Su ' + esc(ch.name) + '</button><button data-none="' + esc(ch.key) + '" class="danger">Togli da ' + esc(ch.name) + '</button>';
+          }).join('') + '</div>' : '') +
+          (editing ? '<div class="row" style="margin-top:12px"><button class="danger" id="cdel">Elimina categoria</button></div>' : ''),
+          'Salva', function () {
+            if (!val('cn')) throw new Error('Scrivi il nome');
+            return upsert('catalog_categories', [{ id: c.id || uuid(), store_id: s.id, name: val('cn'), parent_id: $('#cpar').value || null,
+              sort_order: parseInt(val('cs') || '0', 10), hidden: $('#ch').checked, deleted: false }]).then(reload);
+          });
+        function bulk(key, visible) {
+          var ids = prods.filter(function (p) { var x = catById[p.category_id]; while (x) { if (x.id === c.id) return true; x = catById[x.parent_id]; } return false; }).map(function (p) { return p.id; });
+          if (!ids.length) { $('#dlgMsg').innerHTML = msg('Nessun prodotto in questa categoria'); return; }
+          upsert('catalog_publications', ids.map(function (id) { return { store_id: s.id, item_kind: 'product', item_id: id, channel_key: key, visible: visible, price_cents: (pubs[id + '|' + key] || {}).price_cents == null ? null : pubs[id + '|' + key].price_cents }; }))
+            .then(function () { dlg.close(); reload(); }).catch(function (e) { $('#dlgMsg').innerHTML = msg(e.message); });
+        }
+        $all('[data-all]', dlg).forEach(function (b) { b.onclick = function () { bulk(b.getAttribute('data-all'), true); }; });
+        $all('[data-none]', dlg).forEach(function (b) { b.onclick = function () { bulk(b.getAttribute('data-none'), false); }; });
+        if ($('#cdel')) $('#cdel').onclick = function () {
+          var inside = prods.filter(function (p) { var x = catById[p.category_id]; while (x) { if (x.id === c.id) return true; x = catById[x.parent_id]; } return false; }).length;
+          if (inside) { $('#dlgMsg').innerHTML = msg('La categoria contiene ' + inside + ' prodotti: non si elimina (resterebbero senza storico). Nascondila in cassa o togli i prodotti dalla vendita.'); return; }
+          dlg.close();
+          confirmDo('Eliminare la categoria vuota ' + c.name + '?', 'Elimina', function () {
+            return upd('catalog_categories', 'id=eq.' + c.id, { deleted: true }).then(function () { state.cat = ''; reload(); });
+          });
+        };
+      }
+      render();
+    }).catch(function (e) { box.innerHTML = msg(e.message); });
+  }
+
+  // ---------------------------------------------------------------- menu di un canale online
+  function menuUrl(c, table) {
+    var base = location.origin + location.pathname.replace(/[^\/]*$/, '');
+    return base + 'menu.html?c=' + encodeURIComponent(c.public_code) + (table ? '&t=' + encodeURIComponent(table) : '');
+  }
+
+  // stessa regola del cloud: vale la categoria più vicina impostata per il canale
+  function catState(catChans, catById, catId) {
+    var c = catById[catId], seen = 0;
+    while (c && seen++ < 12) { if (catChans[c.id]) return catChans[c.id]; c = catById[c.parent_id]; }
+    return null;
+  }
+  function onlineVisible(pubs, catChans, catById, p, key) {
+    var pub = pubs[p.id + '|' + key], st = catState(catChans, catById, p.category_id);
+    if (!st) return pub ? pub.visible : false;
+    if (!st.visible) return false;
+    if (st.mode === 'some') return pub ? pub.visible : false;
+    return pub ? pub.visible : true;
+  }
+
+  function channelMenu(box, s, ch) {
+    box.innerHTML = '<div class="loading">Caricamento del menu…</div>';
+    Promise.all([
+      getAll('catalog_categories?select=*&store_id=eq.' + s.id + '&deleted=is.false&order=sort_order,name'),
+      getAll('catalog_products?select=id,name,category_id,price_cents&store_id=eq.' + s.id + '&deleted=is.false&order=sort_order,name'),
+      getAll('catalog_publications?select=*&store_id=eq.' + s.id + '&item_kind=eq.product&channel_key=eq.' + ch.key),
+      getAll('catalog_category_channels?select=*&store_id=eq.' + s.id + '&channel_key=eq.' + ch.key)
+    ]).then(function (r) {
+      var cats = r[0].filter(function (c) { return !c.tobacco; }), prods = r[1], pubs = {}, catChans = {}, catById = {};
+      r[2].forEach(function (x) { pubs[x.item_id + '|' + ch.key] = x; });
+      r[3].forEach(function (x) { catChans[x.category_id] = x; });
+      cats.forEach(function (c) { catById[c.id] = c; });
+      var open = {};
+      function render() {
+        var shown = prods.filter(function (p) { return catById[p.category_id] && onlineVisible(pubs, catChans, catById, p, ch.key); }).length;
+        var rows = [];
+        function walk(parent, depth) {
+          cats.filter(function (c) { return (c.parent_id || null) === parent; }).forEach(function (c) {
+            var own = catChans[c.id], st = catState(catChans, catById, c.id);
+            var val = own ? (own.visible ? own.mode : 'off') : (depth ? 'inherit' : 'off');
+            var items = prods.filter(function (p) { return p.category_id === c.id; });
+            var on = items.filter(function (p) { return onlineVisible(pubs, catChans, catById, p, ch.key); }).length;
+            var eff = st ? (st.visible ? (st.mode === 'some' ? 'solo alcuni' : 'tutti') : 'non mostrata') : 'non mostrata';
+            rows.push('<div class="card" style="margin:0 0 8px ' + (depth * 22) + 'px;padding:12px 14px"><div class="row">' +
+              '<div class="grow"><b>' + esc(c.name) + '</b><div class="muted">' + (items.length ? on + ' di ' + items.length + ' prodotti nel menu' : 'nessun prodotto diretto') +
+              (val === 'inherit' ? ' · come la categoria superiore (' + eff + ')' : '') + '</div></div>' +
+              '<select data-cm="' + c.id + '" style="width:auto">' +
+              (depth ? '<option value="inherit"' + (val === 'inherit' ? ' selected' : '') + '>Come la superiore</option>' : '') +
+              '<option value="off"' + (val === 'off' ? ' selected' : '') + '>Non mostrare</option>' +
+              '<option value="all"' + (val === 'all' ? ' selected' : '') + '>Tutti i prodotti</option>' +
+              '<option value="some"' + (val === 'some' ? ' selected' : '') + '>Solo alcuni</option></select>' +
+              (items.length ? '<button data-open="' + c.id + '">' + (open[c.id] ? 'Chiudi' : 'Prodotti') + '</button>' : '') + '</div>' +
+              (open[c.id] ? '<div style="margin-top:8px">' + items.map(function (p) {
+                var vis = onlineVisible(pubs, catChans, catById, p, ch.key), pub = pubs[p.id + '|' + ch.key];
+                return '<label class="switch" style="padding:6px 0"><input type="checkbox" data-pv="' + p.id + '"' + (vis ? ' checked' : '') + '><span class="grow">' + esc(p.name) + '</span>' +
+                  '<span class="muted">' + eur(pub && pub.price_cents != null ? pub.price_cents : p.price_cents) + '</span></label>';
+              }).join('') + '</div>' : '') + '</div>');
+            walk(c.id, depth + 1);
+          });
+        }
+        walk(null, 0);
+        box.innerHTML = '<div class="card"><div class="crumbs" style="margin:0 0 6px"><button class="link" id="mback">‹ Canali di vendita</button></div>' +
+          '<div class="row"><h2 class="grow" style="margin:0">Menu · ' + esc(ch.name) + '</h2>' +
+          '<a href="' + esc(menuUrl(ch, ch.kind === 'qr' ? '1' : '')) + '" target="_blank" rel="noopener"><button>Anteprima</button></a></div>' +
+          '<p class="muted">Per ogni categoria scegli se mostrarla e con quali prodotti: <b>Tutti</b> (di serie, puoi spegnere i singoli) oppure <b>Solo alcuni</b> (accendi quelli da proporre). ' +
+          'Le sottocategorie seguono la superiore se non le cambi. Ora nel menu: <b>' + shown + '</b> prodotti. I tabacchi non compaiono mai.</p></div>' +
+          (rows.length ? rows.join('') : '<div class="card"><p class="muted">Catalogo vuoto.</p></div>');
+        $('#mback').onclick = function () { channelsTab(box, s); };
+        $all('[data-open]', box).forEach(function (b) { b.onclick = function () { var id = b.getAttribute('data-open'); open[id] = !open[id]; render(); }; });
+        $all('[data-cm]', box).forEach(function (sel) {
+          sel.onchange = function () {
+            var id = sel.getAttribute('data-cm'), v = sel.value;
+            var p = v === 'inherit'
+              ? del('catalog_category_channels', 'store_id=eq.' + s.id + '&category_id=eq.' + id + '&channel_key=eq.' + ch.key).then(function () { delete catChans[id]; })
+              : upsert('catalog_category_channels', [{ store_id: s.id, category_id: id, channel_key: ch.key, visible: v !== 'off', mode: v === 'some' ? 'some' : 'all' }])
+                  .then(function () { catChans[id] = { category_id: id, visible: v !== 'off', mode: v === 'some' ? 'some' : 'all' }; if (v === 'some') open[id] = true; });
+            p.then(render).catch(function (e) { info('Errore', msg(e.message)); });
+          };
+        });
+        $all('[data-pv]', box).forEach(function (cb) {
+          cb.onchange = function () {
+            var id = cb.getAttribute('data-pv'), old = pubs[id + '|' + ch.key];
+            var row = { store_id: s.id, item_kind: 'product', item_id: id, channel_key: ch.key, visible: cb.checked, price_cents: old ? old.price_cents : null };
+            upsert('catalog_publications', [row]).then(function () { pubs[id + '|' + ch.key] = row; render(); }).catch(function (e) { info('Errore', msg(e.message)); });
+          };
+        });
+      }
+      render();
+    }).catch(function (e) { box.innerHTML = msg(e.message); });
+  }
+
+  // QR da stampare per ogni tavolo: aprono il menu col tavolo già scritto
+  function qrDialog(ch) {
+    dialog('QR dei tavoli · ' + ch.name,
+      '<p class="muted">Scrivi i tavoli: numeri singoli, intervalli o nomi, separati da virgola (es. <b>1-20, 30, Terrazza 1</b>). Ogni QR apre il menu con il tavolo già indicato.</p>' +
+      '<label>Tavoli</label><input id="qt" value="1-20">', 'Prepara i QR da stampare', function () {
+        var list = [];
+        val('qt').split(',').forEach(function (part) {
+          part = part.trim(); if (!part) return;
+          var m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+          if (m) { var a = +m[1], b = +m[2]; if (b - a > 200) throw new Error('Intervallo troppo lungo'); for (var i = a; i <= b; i++) list.push(String(i)); }
+          else list.push(part.slice(0, 20));
+        });
+        if (!list.length) throw new Error('Scrivi almeno un tavolo');
+        var w = window.open('', '_blank');
+        if (!w) throw new Error('Il browser ha bloccato la finestra: consenti i popup per questa pagina');
+        var cards = list.map(function (t, i) {
+          return '<div class="q"><div id="q' + i + '" data-u="' + esc(menuUrl(ch, t)) + '"></div><b>Tavolo ' + esc(t) + '</b><span>Inquadra per vedere il menu e ordinare</span></div>';
+        }).join('');
+        w.document.write('<!doctype html><html lang="it"><head><meta charset="utf-8"><title>QR tavoli</title>' +
+          '<style>body{font-family:system-ui,sans-serif;margin:16px}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}' +
+          '.q{border:1px solid #ccc;border-radius:12px;padding:14px;text-align:center;break-inside:avoid}.q div{display:flex;justify-content:center;margin-bottom:8px}' +
+          '.q b{display:block;font-size:20px}.q span{font-size:12px;color:#555}.bar{margin-bottom:12px}@media print{.bar{display:none}}</style></head><body>' +
+          '<div class="bar"><button onclick="print()">Stampa</button></div><div class="g">' + cards + '</div>' +
+          '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>' +
+          '<script>document.querySelectorAll("[data-u]").forEach(function(d){new QRCode(d,{text:d.getAttribute("data-u"),width:160,height:160,correctLevel:QRCode.CorrectLevel.M});});<\/script></body></html>');
+        w.document.close();
+      });
+  }
+
+  // ---------------------------------------------------------------- canali di vendita
+  function channelsTab(box, s) {
+    get('sales_channels?select=*&store_id=eq.' + s.id + '&order=kind,created_at').then(function (chans) {
+      box.innerHTML = '<div class="card"><div class="row"><h2 class="grow" style="margin:0">Canali di vendita</h2><button class="primary" id="nch">Nuovo canale</button></div>' +
+        '<p class="muted">Ogni canale ha il suo menu: nel Catalogo scegli quali prodotti pubblicare e a che prezzo. ' +
+        'Si possono avere più kiosk (es. ingresso e bar), il menu QR al tavolo, il delivery proprietario e più punti cassa ' +
+        '(es. Cassa bar e Chiringuito, ognuno coi suoi prodotti e prezzi; le sue stampanti si scelgono sulla cassa).</p>' +
+        (chans.length ? '<ul class="list">' + chans.map(function (c) {
+          return '<li><div class="grow"><b>' + esc(c.name) + '</b> <span class="pill grey">' + esc(KIND_LABEL[c.kind] || c.kind) + '</span>' +
+            (c.kind === 'pos' ? '<div class="muted">Cassa e palmari scelgono "lavori come ' + esc(c.name) + '"; le stampanti di questo punto si impostano sulla cassa (Impostazioni → Cassa e dispositivi → Punti cassa)</div></div>'
+              : '<div class="muted">' + (c.kind === 'delivery' ? 'Pagina delivery: in arrivo' : '<a href="' + esc(menuUrl(c)) + '" target="_blank" rel="noopener">Apri la pagina</a>') + '</div></div>') +
+            (c.active ? '<span class="pill">attivo</span>' : '<span class="pill off">spento</span>') +
+            (c.kind !== 'pos' ? '<button data-menu="' + c.id + '" class="primary">Menu</button>' : '') +
+            (c.kind === 'qr' ? '<button data-qr="' + c.id + '">QR tavoli</button>' : '') +
+            '<button data-ech="' + c.id + '">Modifica</button></li>';
+        }).join('') + '</ul>' : '<p class="muted">Nessun canale: crea il primo (es. Menu QR al tavolo).</p>') + '</div>';
+      $('#nch').onclick = function () { edit(null); };
+      function byId(id) { return chans.filter(function (c) { return c.id === id; })[0]; }
+      $all('[data-menu]', box).forEach(function (b) { b.onclick = function () { channelMenu(box, s, byId(b.getAttribute('data-menu'))); }; });
+      $all('[data-qr]', box).forEach(function (b) { b.onclick = function () { qrDialog(byId(b.getAttribute('data-qr'))); }; });
+      $all('[data-ech]', box).forEach(function (b) { b.onclick = function () { edit(chans.filter(function (c) { return c.id === b.getAttribute('data-ech'); })[0]); }; });
+      function edit(c) {
+        dialog(c ? c.name : 'Nuovo canale',
+          (c ? '' : '<label>Tipo</label><select id="chk"><option value="qr">Menu QR al tavolo</option><option value="kiosk">Kiosk self-service</option><option value="delivery">Delivery / asporto</option><option value="pos">Punto cassa (es. Cassa bar, Chiringuito)</option></select>') +
+          '<label>Nome</label><input id="chn" value="' + esc(c ? c.name : '') + '" placeholder="es. Kiosk ingresso, Menu tavoli, Consegne">' +
+          (c ? '<div class="switch"><input type="checkbox" id="cha"' + (c.active ? ' checked' : '') + '><span>Attivo (spento: il menu del canale non si apre)</span></div>' : '') +
+          (c ? '<div class="row" style="margin-top:12px"><button class="danger" id="chdel">Elimina canale</button></div>' : ''),
+          'Salva', function () {
+            if (!val('chn')) throw new Error('Scrivi il nome');
+            if (c) return upd('sales_channels', 'id=eq.' + c.id, { name: val('chn'), active: $('#cha').checked }).then(function () { channelsTab(box, s); });
+            var kind = $('#chk').value, n = chans.filter(function (x) { return x.kind === kind; }).length, key;
+            if (kind === 'pos') {
+              var base = 'p-' + (val('chn').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'punto');
+              key = base; var k = 2;
+              while (chans.some(function (x) { return x.key === key; })) { key = base + '-' + (k++); }
+            } else {
+              key = n ? kind + '-' + (n + 1) : kind;
+              while (chans.some(function (x) { return x.key === key; })) { n++; key = kind + '-' + (n + 1); }
+            }
+            return ins('sales_channels', { store_id: s.id, kind: kind, key: key, name: val('chn') }).then(function () { channelsTab(box, s); });
+          });
+        if ($('#chdel')) $('#chdel').onclick = function () {
+          dlg.close();
+          confirmDo('Eliminare il canale ' + c.name + '? Il suo menu smette di funzionare (i prodotti restano nel catalogo).', 'Elimina', function () {
+            return del('sales_channels', 'id=eq.' + c.id).then(function () { channelsTab(box, s); });
+          });
+        };
+      }
+    }).catch(function (e) { box.innerHTML = msg(e.message); });
+  }
+
+  function conventionsTab(box, s) {
+    get('store_settings?select=value&store_id=eq.' + s.id + '&key=eq.conventions').then(function (rows) {
+      var list = []; try { list = JSON.parse((rows[0] && rows[0].value) || '[]'); } catch (e) { list = []; }
+      function render() {
+        box.innerHTML = '<div class="card"><div class="row"><h2 class="grow" style="margin:0">Convenzioni</h2><button class="primary" id="nc">Nuova convenzione</button></div>' +
+          '<p class="muted">Sconti concordati con aziende, hotel, associazioni. In cassa compaiono nel tasto Sconto.</p>' +
+          (list.length ? '<ul class="list">' + list.map(function (c, i) { return '<li><span class="grow">' + esc(c.n) + '</span><b>−' + esc(c.p) + '%</b><button data-ec="' + i + '">Modifica</button></li>'; }).join('') + '</ul>' : '<p class="muted">Nessuna convenzione.</p>') +
+          '</div><div class="card"><h2>Promozioni ed email marketing</h2><p class="muted">In arrivo: happy hour, 3x2, prezzi a tempo, offerte per i clienti fidelity con consenso.</p></div>';
+        $('#nc').onclick = function () { edit(-1); };
+        $all('[data-ec]', box).forEach(function (b) { b.onclick = function () { edit(parseInt(b.getAttribute('data-ec'), 10)); }; });
+      }
+      function save() {
+        return upsert('store_settings', [{ store_id: s.id, key: 'conventions', value: JSON.stringify(list) }]).then(render);
+      }
+      function edit(i) {
+        var c = i >= 0 ? list[i] : { n: '', p: '' };
+        dialog(i >= 0 ? 'Convenzione' : 'Nuova convenzione', '<label>Nome</label><input id="cn" value="' + esc(c.n) + '"><label>Sconto (%)</label><input id="cp" type="number" min="1" max="100" step="0.5" value="' + esc(c.p) + '">' +
+          (i >= 0 ? '<div class="row" style="margin-top:12px"><button class="danger" id="cd">Elimina convenzione</button></div>' : ''), 'Salva', function () {
+          var p = parseFloat(val('cp').replace(',', '.'));
+          if (!val('cn') || !(p > 0 && p <= 100)) throw new Error('Scrivi il nome e uno sconto tra 1 e 100');
+          if (i >= 0) list[i] = { n: val('cn'), p: p }; else list.push({ n: val('cn'), p: p });
+          return save();
+        });
+        if ($('#cd')) $('#cd').onclick = function () { list.splice(i, 1); dlg.close(); save(); };
+      }
+      render();
+    }).catch(function (e) { box.innerHTML = msg(e.message); });
+  }
+
+  function analyticsTab(box, s) {
+    var today = new Date();
+    var from0 = new Date(today.getFullYear(), today.getMonth(), 1);
+    box.innerHTML = '<div class="card"><div class="row"><div><label style="margin-top:0">Dal</label><input type="date" id="af" value="' + iso(from0) + '"></div>' +
+      '<div><label style="margin-top:0">Al</label><input type="date" id="at" value="' + iso(today) + '"></div>' +
+      '<div style="align-self:flex-end"><button class="primary" id="ag">Aggiorna</button></div>' +
+      '<div style="align-self:flex-end" class="row"><button data-q="0">Oggi</button><button data-q="7">7 giorni</button><button data-q="30">30 giorni</button></div></div></div><div id="ar"></div>';
+    function load() {
+      $('#ar').innerHTML = '<div class="loading">Caricamento…</div>';
+      rpc('sales_summary', { p_store: s.id, p_from: val('af'), p_to: val('at') }).then(function (r) {
+        var docs = r.docs || 0, total = r.total || 0, covers = r.covers || 0;
+        function bars(items, labelFn, valueFn, fmt) {
+          var max = Math.max.apply(null, items.map(valueFn).concat([1]));
+          return '<div class="bars">' + items.map(function (it) {
+            var v = valueFn(it);
+            return '<div class="bar"><span>' + esc(labelFn(it)) + '</span><span class="track"><span class="fill" style="width:' + Math.max(0, v / max * 100).toFixed(1) + '%;display:block"></span></span><span class="n">' + fmt(v) + '</span></div>';
+          }).join('') + '</div>';
+        }
+        $('#ar').innerHTML = '<div class="kpis"><div class="kpi"><div class="v">' + eur(total) + '</div><div class="l">Incasso netto</div></div>' +
+          '<div class="kpi"><div class="v">' + docs + '</div><div class="l">Documenti</div></div>' +
+          '<div class="kpi"><div class="v">' + eur(docs ? Math.round(total / docs) : 0) + '</div><div class="l">Scontrino medio</div></div>' +
+          '<div class="kpi"><div class="v">' + covers + '</div><div class="l">Coperti</div></div></div>' +
+          (docs ? '<div class="card"><h2>Incasso per giorno</h2>' + bars(r.days, function (d) { return day(d.day); }, function (d) { return d.total; }, eur) + '</div>' +
+            '<div class="card"><h2>Per fascia oraria</h2>' + bars(r.hours, function (x) { return String(x.hour).padStart(2, '0') + ':00'; }, function (x) { return x.total; }, eur) + '</div>' +
+            '<div class="card"><h2>Pagamenti</h2><table class="t"><tr><th>Metodo</th><th class="n">Documenti</th><th class="n">Importo</th></tr>' +
+            r.methods.map(function (m) { return '<tr><td>' + esc(m.method || '—') + '</td><td class="n">' + m.docs + '</td><td class="n">' + eur(m.total) + '</td></tr>'; }).join('') + '</table></div>' +
+            '<div class="card"><h2>Prodotti più venduti</h2><table class="t"><tr><th>Prodotto</th><th class="n">Quantità</th><th class="n">Importo</th></tr>' +
+            r.products.map(function (p) { return '<tr><td>' + esc(p.name) + '</td><td class="n">' + Number(p.qty).toLocaleString('it-IT') + '</td><td class="n">' + eur(p.total) + '</td></tr>'; }).join('') + '</table></div>'
+            : '<div class="card"><p class="muted">Nessuna vendita nel periodo. Le casse collegate mandano le vendite automaticamente.</p></div>');
+      }).catch(function (e) { $('#ar').innerHTML = msg(e.message); });
+    }
+    $('#ag').onclick = load;
+    $all('[data-q]', box).forEach(function (b) { b.onclick = function () {
+      var n = parseInt(b.getAttribute('data-q'), 10), d = new Date(); d.setDate(d.getDate() - n);
+      $('#af').value = iso(n ? d : new Date()); $('#at').value = iso(new Date()); load();
+    }; });
+    load();
+  }
+
+  function peopleTab(box, s) {
+    Promise.all([get('memberships?select=*&store_id=eq.' + s.id), get('invites?select=*&store_id=eq.' + s.id + '&used_at=is.null&order=created_at.desc')])
+      .then(function (r) {
+        box.innerHTML = '<div class="card"><div class="row"><h2 class="grow" style="margin:0">Responsabili (manager)</h2><button class="primary" id="im">Invita responsabile</button></div>' +
+          '<p class="muted">I responsabili vedono impostazioni, convenzioni e analytics di questo locale.</p>' +
+          (r[0].length ? '<ul class="list">' + r[0].map(function (m) { return '<li><span class="grow">' + esc(m.email || m.user_id) + '</span><button class="danger" data-rm="' + m.id + '">Togli</button></li>'; }).join('') + '</ul>' : '<p class="muted">Nessun responsabile.</p>') +
+          (r[1].length ? '<h3>Inviti non ancora usati</h3><ul class="list">' + r[1].map(function (i) { return '<li><span class="code">' + esc(i.code) + '</span><span class="grow muted">scade il ' + day(i.expires_at) + '</span><button class="danger" data-di="' + esc(i.code) + '">Annulla</button></li>'; }).join('') + '</ul>' : '') +
+          '</div><div class="card"><h2>Operatori della cassa</h2><p class="muted">Camerieri, cassieri e le loro autorizzazioni si gestiscono per ora dalla cassa: Impostazioni → Personale e accessi.</p></div>';
+        $('#im').onclick = function () {
+          rpc('create_invite', { p_role: 'manager', p_store: s.id }).then(function (code) {
+            info('Invito per il responsabile', '<p>Dai questo codice al responsabile: crea il suo accesso al backoffice e lo inserisce. Vale 14 giorni, una volta sola.</p><p><span class="code">' + esc(code) + '</span></p>');
+            dlg.addEventListener('close', function once() { dlg.removeEventListener('close', once); storeView(s.id, 'persone'); });
+          }).catch(function (e) { info('Errore', msg(e.message)); });
+        };
+        $all('[data-rm]', box).forEach(function (b) { b.onclick = function () { confirmDo('Togliere l\'accesso a questo responsabile?', 'Togli', function () { return del('memberships', 'id=eq.' + b.getAttribute('data-rm')).then(function () { storeView(s.id, 'persone'); }); }); }; });
+        $all('[data-di]', box).forEach(function (b) { b.onclick = function () { del('invites', 'code=eq.' + b.getAttribute('data-di')).then(function () { storeView(s.id, 'persone'); }); }; });
+      }).catch(function (e) { box.innerHTML = msg(e.message); });
+  }
+
+  function logTab(box, s) {
+    get('audit_log?select=*&store_id=eq.' + s.id + '&order=at.desc&limit=200').then(function (rows) {
+      box.innerHTML = '<div class="card"><h2>Registro</h2>' + (rows.length ? '<table class="t"><tr><th>Quando</th><th>Cosa</th><th>Dettaglio</th></tr>' +
+        rows.map(function (r) { return '<tr><td>' + dt(r.at) + '</td><td>' + esc(r.action) + '</td><td>' + esc(r.detail) + '</td></tr>'; }).join('') + '</table>' : '<p class="muted">Vuoto.</p>') + '</div>';
+    }).catch(function (e) { box.innerHTML = msg(e.message); });
+  }
+
+  // ---------------------------------------------------------------- partenza
+  var fromHash = readHash();
+  if (fromHash && fromHash.access_token) {
+    setSession({ access_token: fromHash.access_token, refresh_token: fromHash.refresh_token, expires_in: parseInt(fromHash.expires_in || '3600', 10) });
+    api('GET', '/auth/v1/user').then(function (u) {
+      S.user = u; setSession(Object.assign({}, S.session, { user: u }));
+      if (fromHash.type === 'recovery') newPasswordView(); else route();
+    }).catch(function () { setSession(null); route(); });
+  } else {
+    try { var saved = JSON.parse(store('mc_session') || 'null'); if (saved && saved.access_token) { S.session = saved; S.user = saved.user; } } catch (e) { /* niente */ }
+    if (S.session && S.session.expires_at - Date.now() / 1000 < 60) refresh().then(route, route); else route();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+ "version": "1.0.130",
+ "build": 130,
+ "url": "https://mgsyscloud-maker.github.io/mia-cassa-backoffice/app/mia-cassa-1.0.130.apk",
+ "sha256": "e88380719a751ab8c1c87ced2a9b3e7670a8a7692f11d17953b8f1f44c4bf23e",
+ "size_bytes": 79548749,
+ "platform": "android",
+ "date": "13/11/2026",
+ "notes": "Pub: tavolo che resta occupato dopo il pagamento · correzioni dalla prova di carico · errori della prova nel backoffice"
+}

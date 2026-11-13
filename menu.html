@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu</title>
+<script src="config.js"></script>
+<style>
+:root {
+  --bg: #f7f5f2; --card: #ffffff; --ink: #1d1b19; --muted: #6f6a64; --line: #e7e2dc;
+  --brand: #1f6f5c; --brand-ink: #ffffff; --brand-soft: #e3f1ec; --danger: #b3261e;
+  --radius: 14px; --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #121110; --card: #1c1a19; --ink: #f1ede8; --muted: #a59f98; --line: #2e2b28;
+    --brand: #4fb393; --brand-ink: #0c1512; --brand-soft: #1b2e28; --danger: #ff8a80; --shadow: none; }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; }
+.top { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 14px 16px 0; }
+.top h1 { margin: 0; font-size: 22px; letter-spacing: -.2px; }
+.top .sub { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.cats { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 10px; scrollbar-width: none; }
+.cats::-webkit-scrollbar { display: none; }
+.cats button { white-space: nowrap; padding: 8px 14px; border-radius: 99px; background: var(--card); border: 1px solid var(--line); font-weight: 600; font-size: 14px; }
+.cats button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+main { padding: 4px 16px 120px; max-width: 900px; margin: 0 auto; }
+h2.sec { font-size: 18px; margin: 22px 0 10px; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 700px) { .grid { grid-template-columns: 1fr 1fr; } }
+.item { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); text-align: left; width: 100%; }
+.item .t { flex: 1; min-width: 0; }
+.item .n { font-weight: 700; }
+.item .d { color: var(--muted); font-size: 14px; margin-top: 3px; }
+.item .a { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.item .p { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.item .q { display: inline-block; min-width: 24px; padding: 1px 7px; border-radius: 99px; background: var(--brand); color: var(--brand-ink); font-size: 13px; font-weight: 700; text-align: center; margin-top: 6px; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); z-index: 6; }
+.bar button { width: 100%; max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; background: var(--brand); color: var(--brand-ink); border-radius: 99px; padding: 15px 22px; font-weight: 700; font-size: 17px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 10; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--card); width: 100%; max-width: 620px; max-height: 92vh; overflow: auto; border-radius: 20px 20px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); }
+@media (min-width: 700px) { .sheet-bg { align-items: center; } .sheet { border-radius: 20px; } }
+.sheet h3 { margin: 0 0 4px; font-size: 20px; }
+.sheet .d { color: var(--muted); font-size: 14px; }
+.grp { margin-top: 16px; }
+.grp .gt { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+.grp .req { color: var(--danger); font-size: 12px; font-weight: 600; margin-left: 6px; }
+.opt { display: flex; align-items: center; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--line); }
+.opt input { width: 20px; height: 20px; accent-color: var(--brand); }
+.opt span { flex: 1; }
+.qty { display: flex; align-items: center; gap: 14px; justify-content: center; margin: 18px 0 8px; }
+.qty button { width: 44px; height: 44px; border-radius: 99px; border: 1px solid var(--line); font-size: 22px; font-weight: 700; }
+.qty b { font-size: 20px; min-width: 30px; text-align: center; }
+label.l { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
+input.f, textarea.f { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+textarea.f { min-height: 64px; resize: vertical; }
+.primary { width: 100%; background: var(--brand); color: var(--brand-ink); border-radius: 99px; padding: 15px; font-weight: 700; font-size: 17px; margin-top: 14px; }
+.primary:disabled { opacity: .5; }
+.ghost { width: 100%; padding: 12px; color: var(--muted); font-weight: 600; margin-top: 6px; }
+.line { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.line .t { flex: 1; min-width: 0; }
+.line .v { color: var(--muted); font-size: 13px; }
+.line .pm button { width: 34px; height: 34px; border-radius: 99px; border: 1px solid var(--line); font-weight: 700; }
+.line .pm b { display: inline-block; min-width: 22px; text-align: center; }
+.tot { display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; margin-top: 14px; }
+.err { color: var(--danger); margin-top: 10px; font-weight: 600; }
+.center { text-align: center; padding: 60px 20px; }
+.big { font-size: 64px; font-weight: 800; letter-spacing: -1px; margin: 10px 0; }
+.muted { color: var(--muted); }
+body.kiosk { font-size: 19px; }
+body.kiosk .item { padding: 18px; }
+body.kiosk .grid { grid-template-columns: 1fr 1fr; }
+@media (min-width: 1000px) { body.kiosk .grid { grid-template-columns: 1fr 1fr 1fr; } }
+body.kiosk .top h1 { font-size: 30px; }
+body.kiosk .cats button { padding: 12px 20px; font-size: 18px; }
+</style>
+</head>
+<body>
+<div id="app"><div class="center muted">Caricamento del menu…</div></div>
+<div id="sheet"></div>
+<script>
+(function () {
+  'use strict';
+  var CFG = window.MIA_CASSA_CLOUD || {};
+  var URL_ = (CFG.url || '').replace(/\/+$/, ''), KEY = CFG.key || '';
+  var qs = new URLSearchParams(location.search);
+  var CODE = (qs.get('c') || '').trim(), TABLE = (qs.get('t') || '').trim();
+  var app = document.getElementById('app'), sheetBox = document.getElementById('sheet');
+  var M = null, cart = [], cat = null, kiosk = false, lastOrder = null, idleTimer = null;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function eur(c) { return ((c || 0) / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }); }
+  function rpc(fn, args) {
+    return fetch(URL_ + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(args || {}) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error((j && j.message) || 'Errore di collegamento'); return j; }); });
+  }
+  function store(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } return null; }
+  function saveCart() { store('cart_' + CODE + '_' + TABLE, JSON.stringify(cart)); }
+
+  // ---------------------------------------------------------------- dati
+  function load() {
+    if (!CODE) { app.innerHTML = '<div class="center"><h2>Menu non trovato</h2><p class="muted">Inquadra di nuovo il QR code.</p></div>'; return; }
+    rpc('public_menu', { p_code: CODE }).then(function (m) {
+      if (!m || !m.ok) { app.innerHTML = '<div class="center"><h2>Menu non disponibile</h2><p class="muted">' + esc((m && m.error) || '') + '</p></div>'; return; }
+      M = m;
+      kiosk = m.channel.kind === 'kiosk';
+      document.body.classList.toggle('kiosk', kiosk);
+      document.title = (m.store.biz_name || m.store.name) + ' · ' + m.channel.name;
+      try { cart = JSON.parse(store('cart_' + CODE + '_' + TABLE) || '[]') || []; } catch (e) { cart = []; }
+      // il carrello tiene solo i prodotti ancora in menu
+      cart = cart.filter(function (l) { return prod(l.product_id); });
+      render();
+    }).catch(function (e) { app.innerHTML = '<div class="center"><h2>Collegamento non riuscito</h2><p class="muted">' + esc(e.message) + '</p><p><button class="primary" style="max-width:260px" onclick="location.reload()">Riprova</button></p></div>'; });
+  }
+  function prod(id) { for (var i = 0; i < M.products.length; i++) if (M.products[i].id === id) return M.products[i]; return null; }
+  function catOf(id) { for (var i = 0; i < M.categories.length; i++) if (M.categories[i].id === id) return M.categories[i]; return null; }
+  function topOf(catId) { var c = catOf(catId), seen = 0; while (c && c.parent_id && catOf(c.parent_id) && seen++ < 12) c = catOf(c.parent_id); return c; }
+  function groupsFor(p) {
+    return M.variant_groups.filter(function (g) {
+      return g.variants.length && (g.products.indexOf(p.id) >= 0 || g.categories.indexOf(p.category_id) >= 0);
+    });
+  }
+  function cartCount() { return cart.reduce(function (a, l) { return a + l.qty; }, 0); }
+  function cartTotal() { return cart.reduce(function (a, l) { return a + l.unit * l.qty; }, 0); }
+  function qtyOf(pid) { return cart.reduce(function (a, l) { return a + (l.product_id === pid ? l.qty : 0); }, 0); }
+
+  // ---------------------------------------------------------------- menu
+  function render() {
+    touch();
+    var tops = M.categories.filter(function (c) { return !c.parent_id || !catOf(c.parent_id); });
+    if (!cat || !tops.some(function (c) { return c.id === cat; })) cat = tops.length ? tops[0].id : null;
+    // sezioni: la categoria scelta e le sue sottocategorie, ognuna coi suoi prodotti
+    var sections = [];
+    function walk(c, path) {
+      var items = M.products.filter(function (p) { return p.category_id === c.id; });
+      if (items.length) sections.push({ title: path, items: items });
+      M.categories.filter(function (x) { return x.parent_id === c.id; }).forEach(function (x) { walk(x, path ? path + ' · ' + x.name : x.name); });
+    }
+    var cur = catOf(cat); if (cur) walk(cur, '');
+    var where = TABLE ? 'Tavolo ' + esc(TABLE) : esc(M.channel.name);
+    app.innerHTML = '<div class="top"><h1>' + esc(M.store.biz_name || M.store.name) + '</h1><div class="sub">' + where + '</div>' +
+      '<div class="cats">' + tops.map(function (c) { return '<button data-c="' + c.id + '" class="' + (c.id === cat ? 'on' : '') + '">' + esc(c.name) + '</button>'; }).join('') + '</div></div>' +
+      '<main>' + (M.products.length ? sections.map(function (s) {
+        return (s.title ? '<h2 class="sec">' + esc(s.title) + '</h2>' : '<div style="height:8px"></div>') + '<div class="grid">' + s.items.map(function (p) {
+          var q = qtyOf(p.id);
+          return '<button class="item" data-p="' + p.id + '"><div class="t"><div class="n">' + esc(p.name) + '</div>' +
+            (p.description ? '<div class="d">' + esc(p.description) + '</div>' : '') +
+            (p.allergens ? '<div class="a">Allergeni: ' + esc(p.allergens) + '</div>' : '') +
+            (q ? '<span class="q">' + q + ' nel carrello</span>' : '') + '</div><div class="p">' + eur(p.price_cents) + '</div></button>';
+        }).join('') + '</div>';
+      }).join('') : '<div class="center muted">Il menu è vuoto.</div>') + '</main>' +
+      (cartCount() ? '<div class="bar"><button id="go"><span>Vedi ordine · ' + cartCount() + '</span><span>' + eur(cartTotal()) + '</span></button></div>' : '');
+    Array.prototype.forEach.call(app.querySelectorAll('[data-c]'), function (b) { b.onclick = function () { cat = b.getAttribute('data-c'); render(); window.scrollTo(0, 0); }; });
+    Array.prototype.forEach.call(app.querySelectorAll('[data-p]'), function (b) { b.onclick = function () { openProduct(prod(b.getAttribute('data-p'))); }; });
+    var go = document.getElementById('go'); if (go) go.onclick = openCart;
+  }
+
+  function closeSheet() { sheetBox.innerHTML = ''; }
+  function sheet(html) {
+    sheetBox.innerHTML = '<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog">' + html + '</div></div>';
+    document.getElementById('sbg').onclick = function (e) { if (e.target.id === 'sbg') closeSheet(); };
+  }
+
+  function openProduct(p) {
+    touch();
+    var groups = groupsFor(p), qty = 1;
+    sheet('<h3>' + esc(p.name) + '</h3>' + (p.description ? '<div class="d">' + esc(p.description) + '</div>' : '') +
+      (p.allergens ? '<div class="d" style="margin-top:4px">Allergeni: ' + esc(p.allergens) + '</div>' : '') +
+      groups.map(function (g) {
+        return '<div class="grp"><div class="gt">' + esc(g.name) + (g.required ? '<span class="req">obbligatorio</span>' : '') + '</div>' +
+          g.variants.map(function (v) {
+            return '<label class="opt"><input type="' + (g.multi ? 'checkbox' : 'radio') + '" name="g' + g.id + '" value="' + v.id + '" data-g="' + g.id + '"><span>' + esc(v.name) + '</span>' +
+              (v.price_cents ? '<b>+' + eur(v.price_cents) + '</b>' : '') + '</label>';
+          }).join('') + '</div>';
+      }).join('') +
+      '<label class="l">Note (es. senza cipolla)</label><input class="f" id="pnote" maxlength="140">' +
+      '<div class="qty"><button id="qm">−</button><b id="qv">1</b><button id="qp">+</button></div>' +
+      '<div class="err" id="perr"></div><button class="primary" id="padd">Aggiungi · ' + eur(p.price_cents) + '</button><button class="ghost" id="pclose">Chiudi</button>');
+    function chosen() { return Array.prototype.map.call(sheetBox.querySelectorAll('input[data-g]:checked'), function (i) { return i.value; }); }
+    function unit() {
+      var u = p.price_cents, ids = chosen();
+      groups.forEach(function (g) { g.variants.forEach(function (v) { if (ids.indexOf(v.id) >= 0) u += v.price_cents; }); });
+      return u;
+    }
+    function refresh() { document.getElementById('qv').textContent = qty; document.getElementById('padd').textContent = 'Aggiungi · ' + eur(unit() * qty); }
+    Array.prototype.forEach.call(sheetBox.querySelectorAll('input[data-g]'), function (i) { i.onchange = refresh; });
+    document.getElementById('qm').onclick = function () { if (qty > 1) { qty--; refresh(); } };
+    document.getElementById('qp').onclick = function () { if (qty < 50) { qty++; refresh(); } };
+    document.getElementById('pclose').onclick = closeSheet;
+    document.getElementById('padd').onclick = function () {
+      var ids = chosen();
+      var missing = groups.filter(function (g) { return g.required && !g.variants.some(function (v) { return ids.indexOf(v.id) >= 0; }); });
+      if (missing.length) { document.getElementById('perr').textContent = 'Scegli: ' + missing.map(function (g) { return g.name; }).join(', '); return; }
+      var names = []; groups.forEach(function (g) { g.variants.forEach(function (v) { if (ids.indexOf(v.id) >= 0) names.push(v.name); }); });
+      var note = document.getElementById('pnote').value.trim();
+      var key = p.id + '|' + ids.slice().sort().join(',') + '|' + note;
+      var same = cart.filter(function (l) { return l.key === key; })[0];
+      if (same) same.qty = Math.min(50, same.qty + qty);
+      else cart.push({ key: key, product_id: p.id, name: p.name, variant_ids: ids, variants: names, note: note, qty: qty, unit: unit() });
+      saveCart(); closeSheet(); render();
+    };
+  }
+
+  function openCart() {
+    touch();
+    if (!cartCount()) { closeSheet(); render(); return; }
+    var nameField = kiosk || !TABLE;
+    sheet('<h3>Il tuo ordine</h3><div class="d">' + (TABLE ? 'Tavolo ' + esc(TABLE) : esc(M.channel.name)) + '</div>' +
+      cart.map(function (l, i) {
+        return '<div class="line"><div class="t"><b>' + esc(l.name) + '</b>' + (l.variants.length ? '<div class="v">' + esc(l.variants.join(', ')) + '</div>' : '') +
+          (l.note ? '<div class="v">Nota: ' + esc(l.note) + '</div>' : '') + '<div class="v">' + eur(l.unit) + ' cad.</div></div>' +
+          '<div class="pm"><button data-m="' + i + '">−</button><b>' + l.qty + '</b><button data-pl="' + i + '">+</button></div></div>';
+      }).join('') +
+      '<div class="tot"><span>Totale</span><span>' + eur(cartTotal()) + '</span></div>' +
+      (nameField ? '<label class="l">Il tuo nome' + (kiosk ? ' (per chiamarti)' : '') + '</label><input class="f" id="oname" maxlength="40" autocomplete="given-name">' : '') +
+      '<label class="l">Note per il locale</label><textarea class="f" id="onotes" maxlength="300"></textarea>' +
+      '<div class="err" id="oerr"></div><button class="primary" id="osend">' + (kiosk ? 'Ordina e paga alla cassa' : 'Invia l\'ordine') + '</button>' +
+      '<button class="ghost" id="oback">Aggiungi altro</button>');
+    Array.prototype.forEach.call(sheetBox.querySelectorAll('[data-m]'), function (b) { b.onclick = function () { var l = cart[+b.getAttribute('data-m')]; l.qty--; if (l.qty <= 0) cart.splice(+b.getAttribute('data-m'), 1); saveCart(); openCart(); render(); }; });
+    Array.prototype.forEach.call(sheetBox.querySelectorAll('[data-pl]'), function (b) { b.onclick = function () { var l = cart[+b.getAttribute('data-pl')]; if (l.qty < 50) l.qty++; saveCart(); openCart(); render(); }; });
+    document.getElementById('oback').onclick = closeSheet;
+    document.getElementById('osend').onclick = function () {
+      var btn = this; btn.disabled = true; btn.textContent = 'Invio…';
+      var nm = document.getElementById('oname');
+      if (kiosk && nm && !nm.value.trim()) { document.getElementById('oerr').textContent = 'Scrivi il tuo nome'; btn.disabled = false; btn.textContent = 'Ordina e paga alla cassa'; return; }
+      rpc('place_order', {
+        p_code: CODE, p_table: TABLE, p_name: nm ? nm.value.trim() : '', p_phone: '',
+        p_notes: document.getElementById('onotes').value.trim(),
+        p_lines: cart.map(function (l) { return { product_id: l.product_id, qty: l.qty, variant_ids: l.variant_ids, note: l.note }; })
+      }).then(function (r) {
+        if (!r.ok) throw new Error(r.error || 'Ordine non inviato');
+        lastOrder = r; cart = []; saveCart(); closeSheet(); done();
+      }).catch(function (e) {
+        document.getElementById('oerr').textContent = e.message; btn.disabled = false; btn.textContent = kiosk ? 'Ordina e paga alla cassa' : 'Invia l\'ordine';
+        if (/disponibile/.test(e.message)) load();
+      });
+    };
+  }
+
+  // ---------------------------------------------------------------- dopo l'invio
+  var STATUS = { 'new': 'Ricevuto: il locale lo sta guardando', accepted: 'Accettato: è in preparazione', ready: 'Pronto!', done: 'Servito, buon appetito', cancelled: 'Non accettato: chiedi al personale' };
+  function done() {
+    var o = lastOrder;
+    app.innerHTML = '<div class="center"><div class="muted">' + (kiosk ? 'Il tuo numero' : 'Ordine inviato') + '</div><div class="big">' + o.number + '</div>' +
+      '<p><b>' + eur(o.total_cents) + '</b>' + (kiosk ? ' · paga alla cassa' : '') + '</p><p id="st" class="muted">' + STATUS['new'] + '</p>' +
+      '<button class="primary" style="max-width:320px" id="again">' + (kiosk ? 'Nuovo ordine' : 'Ordina ancora') + '</button></div>';
+    document.getElementById('again').onclick = function () { lastOrder = null; render(); };
+    if (kiosk) { clearTimeout(idleTimer); idleTimer = setTimeout(function () { lastOrder = null; render(); }, 25000); return; }
+    var poll = setInterval(function () {
+      if (!lastOrder || lastOrder.id !== o.id || !document.getElementById('st')) { clearInterval(poll); return; }
+      rpc('public_order_status', { p_id: o.id }).then(function (s) {
+        var el = document.getElementById('st'); if (el && STATUS[s.status]) el.textContent = STATUS[s.status];
+        if (s.status === 'done' || s.status === 'cancelled') clearInterval(poll);
+      }).catch(function () {});
+    }, 10000);
+  }
+
+  // kiosk: dopo 2 minuti senza tocchi si ricomincia da capo
+  function touch() {
+    if (!kiosk) return;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { cart = []; saveCart(); closeSheet(); lastOrder = null; cat = null; if (M) render(); }, 120000);
+  }
+  document.addEventListener('pointerdown', function () { if (kiosk && !lastOrder) touch(); });
+  load();
+})();
+</script>
+</body>
+</html>
