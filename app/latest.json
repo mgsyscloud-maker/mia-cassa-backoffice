@@ -1,0 +1,10 @@
+{
+ "version": "1.0.198",
+ "build": 198,
+ "url": "https://mgsyscloud-maker.github.io/mia-cassa-backoffice/app/mia-cassa-1.0.198.apk",
+ "sha256": "20732ec9d3cd42fb1f9fa8353942967a3a8cfdf676aacf7caec7a0a1b2474c1a",
+ "size_bytes": 82634557,
+ "platform": "android",
+ "date": "20/11/2026",
+ "notes": "File del programma divisi per area (stesso comportamento); incasso in corso unico e sempre azzerato; fix: un incasso a ticket fallito non lascia i ticket sullo scontrino successivo; voce non persa riprovando; 150 prove automatiche."
+}
