@@ -1,0 +1,10 @@
+{
+ "version": "1.0.270",
+ "build": 270,
+ "url": "https://mgsyscloud-maker.github.io/mia-cassa-backoffice/app/mia-cassa-1.0.270.apk",
+ "sha256": "4a1687a6208208f2b64546c1d7997d7b2d23eb2a617112e5344a4aa2d7477107",
+ "size_bytes": 81966113,
+ "platform": "android",
+ "date": "27/11/2026",
+ "notes": "In cassa si vede sempre chi è collegato (tocca per cambiare operatore). Sottoreparti: seconda fila sotto i reparti, oppure finestra o come prima (Impostazioni rapide, scelta di ogni operatore)."
+}
